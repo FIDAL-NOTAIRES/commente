@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>COMMENTE — FIDAL Notaires</title>
-<!-- COMMENTE v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+<!-- COMMENTE v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
      Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
      sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
      suivre la visio sur haut-parleurs, pas au casque. -->
@@ -119,6 +119,60 @@ button{font:inherit;cursor:pointer}
 .col h2.fil-titre{padding-top:8px}
 .com .repere{color:var(--nuit);font-weight:600}
 .phrase.page{color:var(--gris);font-style:italic}
+/* ==================== v0.4 — dossier repliable à gauche, zone principale en deux volets ==================== */
+#grille{grid-template-columns:320px minmax(0,1fr)}
+#grille.replie{grid-template-columns:46px minmax(0,1fr)}
+#gauche{background:#fff}
+.g-tete{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 6px 16px}
+.g-tete h2{padding:0}
+.plier{width:28px;height:28px;border:1px solid var(--trait);border-radius:50%;background:#fff;color:var(--nuit);font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}
+.plier:hover{border-color:var(--canard);color:var(--canard)}
+.plier:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#grille.replie .g-tete{flex-direction:column;gap:10px;padding:10px 0}
+#grille.replie .g-tete h2{writing-mode:vertical-rl;transform:rotate(180deg);font-size:13px;font-weight:600;color:var(--gris);order:2}
+#grille.replie #g-corps{display:none}
+#g-corps{padding-top:2px}
+#scenarios{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.scn{border:1px solid #C5CCD6;background:#fff;color:var(--nuit);border-radius:14px;padding:4px 11px;font-size:13px}
+.scn[aria-checked="true"]{background:var(--nuit);border-color:var(--nuit);color:#fff;font-weight:600}
+.scn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#contexte{min-height:92px;font-size:12.5px;line-height:1.4}
+#gauche #depot{margin:14px 0 8px}
+.sdos{margin-top:8px}
+.sdos-t{display:flex;align-items:baseline;gap:6px;font-size:13px;font-weight:600;padding:5px 0 3px;border-bottom:1px solid var(--trait)}
+.sdos-t::before{content:"";width:13px;height:10px;border-radius:1px 3px 1px 1px;background:var(--canard);display:inline-block;transform:translateY(1px)}
+.sdos-t small{font-weight:400;color:var(--gris)}
+.piece{padding:6px 0 6px 19px}
+.piece .orig{color:var(--gris);font-size:11.5px}
+.piece select{margin-top:3px;font:inherit;font-size:11.5px;color:var(--gris);border:1px solid var(--trait);border-radius:2px;background:#fff;max-width:100%}
+#principal{display:flex;flex-direction:column;min-height:0;min-width:0}
+#centre-haut{padding:10px 16px 0}
+#vortex{height:128px}
+#commandes{padding:10px 0 2px;gap:40px}
+.rond .disque{width:66px;height:66px}
+.rond svg{width:28px;height:28px}
+.rond .lib{font-size:13px}
+#duo{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border-top:1px solid var(--trait);margin-top:8px}
+#duo>section{display:flex;flex-direction:column;min-height:0;min-width:0}
+#duo>section:first-child{border-right:1px solid var(--trait);background:#fff}
+#duo h2{margin:0;padding:10px 16px 6px;font-size:15px;font-weight:600;display:flex;align-items:baseline;gap:8px}
+#duo h2 small{font-weight:400;color:var(--gris);font-size:12px}
+#filtres{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 8px}
+.filtre{border:1px solid var(--trait);background:#fff;border-radius:12px;padding:2px 10px;font-size:12px;color:var(--gris)}
+.filtre[aria-pressed="true"]{border-color:var(--nuit);color:var(--nuit);font-weight:600}
+.el{background:#fff;border:1px solid var(--trait);border-left:5px solid var(--canard);border-radius:2px;padding:9px 12px;margin-bottom:9px}
+.el.confirme{border-left-color:var(--vert)}.el.contredit{border-left-color:var(--carmin)}.el.a_verifier{border-left-color:var(--orange)}.el.question{border-left-color:var(--canard)}
+.el .tete{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:baseline;font-size:11.5px;color:var(--gris);margin-bottom:4px;font-variant-numeric:tabular-nums}
+.el .verdict{font-weight:700}
+.el.confirme .verdict{color:var(--vert)}.el.contredit .verdict{color:var(--carmin)}.el.a_verifier .verdict{color:var(--orange-t)}.el.question .verdict{color:var(--canard)}
+.el .type{color:var(--nuit);font-weight:600}
+.el .texte{font-size:14.5px;line-height:1.45}
+.el blockquote{margin:6px 0 0;padding:5px 9px;border-left:2px solid var(--trait);background:#F7F9FB;font-size:12.5px;line-height:1.45;color:#3D5168;font-style:italic}
+.el .origine{margin-top:5px;font-size:12px;color:#3D5168}
+.el .origine a{color:var(--canard)}
+.el .sur{margin-top:4px;font-size:11.5px;color:var(--gris)}
+#coms[data-filtre="projet"] .el:not(.t-projet),#coms[data-filtre="dossier"] .el:not(.t-dossier),#coms[data-filtre="loi"] .el:not(.t-loi),#coms[data-filtre="vigilance"] .el:not(.t-vigilance){display:none}
+@media (max-width:1000px){#grille,#grille.replie{grid-template-columns:1fr;height:auto}#grille.replie .g-tete{flex-direction:row;padding:10px 10px 6px 16px}#grille.replie .g-tete h2{writing-mode:horizontal-tb;transform:none;order:0;font-size:15px;color:var(--nuit)}#duo{grid-template-columns:1fr}#duo>section:first-child{border-right:0;border-bottom:1px solid var(--trait)}#duo .defile{max-height:55vh}}
 </style>
 </head>
 <body>
@@ -133,20 +187,22 @@ button{font:inherit;cursor:pointer}
 </header>
 <div id="alerte" role="alert"></div>
 <main id="grille">
-  <section class="col">
-    <h2>Pièces du dossier <small id="pieces-total"></small></h2>
-    <div id="depot">Déposez ici les pièces<br>(PDF, Word, texte) ou <label for="fichiers">choisissez-les</label>
-      <input id="fichiers" type="file" multiple accept=".pdf,.docx,.txt,.md" class="cache"></div>
-    <div class="defile">
-      <div id="pieces"><p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux. Déposez le projet d'acte reçu : en mode vidéo, la page affichée lui est comparée.</p></div>
-      <label class="etiq" for="contexte">Contexte de la réunion</label>
-      <textarea id="contexte" placeholder="Ex. : négociation de l'offre du lot 1, 72 rue Boissière ; j'interviens pour les acquéreurs ; le confrère représente le vendeur."></textarea>
+  <aside class="col" id="gauche">
+    <div class="g-tete"><h2>Dossier <small id="pieces-total"></small></h2>
+      <button class="plier" id="b-plier" type="button" aria-expanded="true" aria-controls="g-corps" title="Replier le dossier">‹</button></div>
+    <div class="defile" id="g-corps">
+      <span class="etiq" id="scn-etiq">Type de rendez-vous</span>
+      <div id="scenarios" role="radiogroup" aria-labelledby="scn-etiq"></div>
+      <textarea id="contexte" aria-label="Contexte de la réunion, modifiable"></textarea>
+      <div id="depot">Glissez ici les pièces du dossier<br>(PDF, Word, texte) ou <label for="fichiers">choisissez-les</label>
+        <input id="fichiers" type="file" multiple accept=".pdf,.docx,.txt,.md" class="cache"></div>
+      <div id="pieces"><p class="vide">Dossier vide. Glissez les pièces ci-dessus : chacune est renommée et rangée dans son sous-dossier. Déposez en priorité le projet d'acte reçu.</p></div>
       <p class="aide"><b>Audio</b> : seul le micro est écouté ; suivez la visio sur les haut-parleurs du poste.</p>
       <p class="aide"><b>Audio + vidéo</b> : partagez l'écran entier en cochant « Partager l'audio du système » : COMMENTE entend alors aussi le son de Teams ou de Lifesize (casque possible) et lit l'acte qui défile. La fenêtre de la visio doit rester visible.</p>
       <p class="aide">Prévenez les participants que la réunion est transcrite.</p>
     </div>
-  </section>
-  <section class="col">
+  </aside>
+  <div id="principal">
     <div id="centre-haut">
       <div id="vortex" aria-hidden="true"><canvas id="vortex-c"></canvas><div id="sources"></div><span id="coeur">COMMENTE</span></div>
       <div id="commandes">
@@ -161,25 +217,30 @@ button{font:inherit;cursor:pointer}
       </div>
       <div id="ecran-etat" aria-live="polite"></div>
     </div>
-    <h2 class="fil-titre">Ce qui se dit <small id="nb-phrases"></small></h2>
-    <div class="defile" id="fil-zone">
-      <div id="fil"><p class="vide">Appuyez sur « Audio » ou sur « Audio + vidéo ». Chrome demandera l'accès au micro, et au partage d'écran pour la vidéo.</p></div>
-      <div id="provisoire"></div>
+    <div id="duo">
+      <section>
+        <h2>Ce qui se dit <small id="nb-phrases"></small></h2>
+        <div class="defile" id="fil-zone">
+          <div id="fil"><p class="vide">Appuyez sur « Audio » ou sur « Audio + vidéo ». Chrome demandera l'accès au micro, et au partage d'écran pour la vidéo.</p></div>
+          <div id="provisoire"></div>
+        </div>
+        <form id="saisie" autocomplete="off">
+          <input id="saisie-t" placeholder="Taper une phrase à vérifier (essai, ou si l'écoute décroche)">
+          <button class="btn" type="submit">Ajouter</button>
+        </form>
+      </section>
+      <section>
+        <h2>Ce qui le confirme ou le conteste <small id="nb-com"></small></h2>
+        <div id="filtres" role="group" aria-label="Filtrer les éléments"></div>
+        <div id="attente"></div>
+        <div class="defile" id="coms"><p class="vide">En regard de ce qui se dit, vous verrez ici les extraits du projet, les éléments du dossier, les articles de loi et les points de vigilance qui le confirment ou le contestent. Les plus récents sont en haut.</p></div>
+      </section>
     </div>
-    <form id="saisie" autocomplete="off">
-      <input id="saisie-t" placeholder="Taper une phrase à commenter (essai, ou si l'écoute décroche)">
-      <button class="btn" type="submit">Ajouter</button>
-    </form>
-  </section>
-  <section class="col">
-    <h2>Commentaires <small id="nb-com"></small></h2>
-    <div id="attente"></div>
-    <div class="defile" id="coms"><p class="vide">Les commentaires apparaîtront ici, les plus récents en haut, avec le délai mesuré depuis la phrase ou la page.</p></div>
-  </section>
+  </div>
 </main>
 
 <script>
-/* ==================== COMMENTE v0.3 — 26/11/2026 ==================== */
+/* ==================== COMMENTE v0.4 — 26/11/2026 ==================== */
 /* ---------- appels au serveur sous la garde de CARNET (lot 5 de CARNET, 26/11/2026) ----------
    Les fonctions du serveur de COMMENTE vérifient désormais la personne : chaque appel porte sa connexion
    (en-tête X-Carnet-Jeton, celle que le voile garde sur le poste). L'appel attend que le voile soit levé ;
@@ -254,33 +315,106 @@ async function lireFichier(f) {
   }
   return { texte: (await f.text()).trim(), pb: "" };
 }
+/* Rangement : chaque pièce déposée est classée d'après son nom et son contenu (mots repères, sans appel payant),
+   renommée « Sous-dossier – nom d'origine », et rangée ; le menu sous la pièce permet de la déplacer. */
+const DOSSIERS = [
+  { id: "projet", nom: "Projet d'acte", mots: ["projet", "promesse", "compromis", "acte de vente", "avant-contrat", "donation-partage", "acte authentique", "condition suspensive", "indemnite d'immobilisation", "le promettant", "le beneficiaire"] },
+  { id: "titre", nom: "Titre de propriété", mots: ["titre de propriete", "origine de propriete", "acte d'acquisition", "attestation de propriete", "etat hypothecaire", "fiche d'immeuble"] },
+  { id: "copro", nom: "Copropriété", mots: ["copropriete", "reglement de copro", "etat descriptif", "assemblee generale", "proces-verbal", "pre-etat date", "syndic", "appel de fonds", "carnet d'entretien", "tantiemes"] },
+  { id: "diag", nom: "Diagnostics", mots: ["diagnostic", "dpe", "amiante", "plomb", "termites", "carrez", "etat des risques", "performance energetique", "installation electrique", "reperage"] },
+  { id: "urba", nom: "Urbanisme", mots: ["urbanisme", "plu", "preemption", "declaration d'intention d'aliener", "permis de construire", "changement d'usage", "cadastre", "alignement"] },
+  { id: "civil", nom: "État civil et sociétés", mots: ["acte de naissance", "livret de famille", "kbis", "statuts", "piece d'identite", "passeport", "acte de deces", "contrat de mariage", "pacs", "pouvoir", "procuration"] },
+  { id: "finance", nom: "Financement", mots: ["offre de pret", "pret", "banque", "caution", "tableau d'amortissement", "origine des fonds", "rib"] },
+  { id: "famille", nom: "Succession et libéralités", mots: ["succession", "testament", "donation", "notoriete", "inventaire", "assurance-vie", "heritier", "legs"] },
+  { id: "courrier", nom: "Correspondance", mots: ["courriel", "lettre", "offre d'achat", "lettre d'intention", "mandat", "courrier", "email", "mail"] },
+  { id: "autre", nom: "Autres pièces", mots: [] }
+];
+const sansAccent = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[’]/g, "'");
+function classer(nom, texte) {
+  // le nom du fichier pèse le plus, puis le début du document (son titre), puis le reste du texte
+  const n = sansAccent(nom).replace(/[_.]+/g, " "), t = sansAccent(texte).slice(0, 8000), tete = t.slice(0, 400);
+  let mieux = "autre", score = 0;
+  DOSSIERS.forEach((d) => {
+    let sc = 0;
+    d.mots.forEach((m) => { if (n.includes(m)) sc += 6; if (tete.includes(m)) sc += 4; const k = t.split(m).length - 1; sc += Math.min(k, 4); });
+    if (sc > score) { score = sc; mieux = d.id; }
+  });
+  return score >= 2 ? mieux : "autre";
+}
+function titrer(p) {
+  const d = DOSSIERS.find((x) => x.id === p.dossier), base = p.nom.replace(/\.[a-z0-9]{2,5}$/i, "").replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
+  const ext = (p.nom.match(/\.[a-z0-9]{2,5}$/i) || [""])[0].toLowerCase();
+  const deja = sansAccent(base).startsWith(sansAccent(d.nom));
+  let titre = (deja ? base : d.nom + " – " + base) + ext, k = 2;
+  while (ETAT.pieces.some((q) => q !== p && q.titre === titre)) titre = (deja ? base : d.nom + " – " + base) + " (" + (k++) + ")" + ext;
+  return titre;
+}
+const nomEnvoi = (p) => DOSSIERS.find((d) => d.id === p.dossier).nom + " / " + p.titre;
 async function ajouterPieces(liste) {
   for (const f of liste) {
-    const p = { nom: f.name, texte: "", pb: "Lecture…" };
+    const p = { nom: f.name, titre: f.name, dossier: "autre", texte: "", pb: "Lecture…" };
     ETAT.pieces.push(p); afficherPieces();
     try { const r = await lireFichier(f); p.texte = r.texte; p.pb = r.pb; }
     catch (e) { p.pb = "Illisible : " + (e.message || e); }
+    p.dossier = classer(p.nom, p.texte); p.titre = titrer(p);
     afficherPieces();
   }
 }
 function afficherPieces() {
   const z = $("pieces");
   vortexSources();
-  if (!ETAT.pieces.length) { z.innerHTML = '<p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux. Déposez le projet d\'acte reçu : en mode vidéo, la page affichée lui est comparée.</p>'; $("pieces-total").textContent = ""; return; }
+  $("pieces-total").textContent = ETAT.pieces.length ? ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "") : "";
+  if (!ETAT.pieces.length) { z.innerHTML = '<p class="vide">Dossier vide. Glissez les pièces ci-dessus : chacune est renommée et rangée dans son sous-dossier. Déposez en priorité le projet d\'acte reçu.</p>'; return; }
   const total = ETAT.pieces.reduce((s, p) => s + p.texte.length, 0);
-  $("pieces-total").textContent = ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "");
-  z.innerHTML = ETAT.pieces.map((p, i) => '<div class="piece"><div class="nom">' + echap(p.nom)
-    + '<div class="taille">' + (p.texte ? Math.round(p.texte.length / 1000) + " k caractères" : "") + '</div>'
-    + (p.pb ? '<div class="pb">' + echap(p.pb) + '</div>' : '') + '</div>'
-    + '<button type="button" data-i="' + i + '" title="Retirer cette pièce" aria-label="Retirer ' + echap(p.nom) + '">×</button></div>').join("")
+  z.innerHTML = DOSSIERS.filter((d) => ETAT.pieces.some((p) => p.dossier === d.id)).map((d) => {
+    const dedans = ETAT.pieces.map((p, i) => ({ p, i })).filter((x) => x.p.dossier === d.id);
+    return '<div class="sdos" data-d="' + d.id + '"><div class="sdos-t">' + echap(d.nom) + ' <small>' + dedans.length + '</small></div>'
+      + dedans.map(({ p, i }) => '<div class="piece"><div class="nom">' + echap(p.titre)
+        + (p.titre !== p.nom ? '<div class="orig">reçue sous : ' + echap(p.nom) + '</div>' : '')
+        + '<div class="taille">' + (p.texte ? Math.round(p.texte.length / 1000) + " k caractères" : "") + '</div>'
+        + (p.pb ? '<div class="pb">' + echap(p.pb) + '</div>' : '')
+        + '<select data-i="' + i + '" aria-label="Ranger ' + echap(p.titre) + ' dans">' + DOSSIERS.map((x) => '<option value="' + x.id + '"' + (x.id === p.dossier ? ' selected' : '') + '>' + (x.id === p.dossier ? 'Rangée dans : ' : 'Déplacer vers : ') + echap(x.nom) + '</option>').join("") + '</select></div>'
+        + '<button type="button" data-i="' + i + '" title="Retirer cette pièce" aria-label="Retirer ' + echap(p.titre) + '">×</button></div>').join("") + '</div>';
+  }).join("")
     + (total > MAX_TOTAL ? '<p class="pb">Les pièces dépassent ' + MAX_TOTAL / 1000 + ' k caractères : la fin des dernières pièces ne sera pas lue.</p>' : '');
 }
 $("pieces").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-i]"); if (!b) return; ETAT.pieces.splice(Number(b.dataset.i), 1); afficherPieces(); });
+$("pieces").addEventListener("change", (ev) => { const m = ev.target.closest("select[data-i]"); if (!m) return; const p = ETAT.pieces[Number(m.dataset.i)]; p.dossier = m.value; p.titre = titrer(p); afficherPieces(); });
 $("fichiers").addEventListener("change", (ev) => { ajouterPieces([...ev.target.files]); ev.target.value = ""; });
 const dep = $("depot");
 ["dragenter", "dragover"].forEach((t) => dep.addEventListener(t, (ev) => { ev.preventDefault(); dep.classList.add("survol"); }));
 ["dragleave", "drop"].forEach((t) => dep.addEventListener(t, (ev) => { ev.preventDefault(); dep.classList.remove("survol"); }));
 dep.addEventListener("drop", (ev) => ajouterPieces([...ev.dataTransfer.files]));
+
+/* ---------- type de rendez-vous : contextes préchargés, modifiables ; « Autre » = champ libre ---------- */
+const SCENARIOS = [
+  { id: "vente", nom: "Vente", texte: "Signature ou préparation d'une vente immobilière. À surveiller : désignation du bien et des lots, superficie, prix et modalités de paiement, origine de propriété, situation hypothécaire, servitudes, urbanisme et droits de préemption, diagnostics, copropriété (charges, travaux votés, procédures), situation locative, plus-value, répartition des frais, entrée en jouissance et remise des clés." },
+  { id: "promesse", nom: "Promesse de vente", texte: "Négociation ou signature d'une promesse de vente. À surveiller : désignation et superficie, prix, conditions suspensives (prêt : montant, durée, taux, délais ; urbanisme ; préemption), durée de la promesse et date de réalisation, indemnité d'immobilisation ou clause pénale, dépôt de garantie et séquestre, délai de rétractation, faculté de substitution, état du bien et travaux, pièces de copropriété, sort des meubles." },
+  { id: "succession", nom: "Succession", texte: "Rendez-vous de succession. À surveiller : dévolution (héritiers, conjoint survivant, testament, donation entre époux), régime matrimonial et liquidation, actif et passif, donations antérieures (rapport, réduction, rappel fiscal), assurance-vie, option du conjoint, abattements et droits, délai de dépôt de la déclaration, attestation immobilière, indivision et partage." },
+  { id: "anticipation", nom: "Anticipation patrimoniale", texte: "Rendez-vous de transmission anticipée. À surveiller : donation simple ou donation-partage, démembrement (usufruit, nue-propriété, barème fiscal), abattements et rappel des donations antérieures, réserve héréditaire et quotité disponible, clauses (retour, inaliénabilité, exclusion de communauté), donation aux petits-enfants, société civile, assurance-vie, protection du conjoint, risque d'abus de droit." },
+  { id: "autre", nom: "Autre", texte: "" }
+];
+const SCN = { actif: "promesse", textes: Object.fromEntries(SCENARIOS.map((x) => [x.id, x.texte])) };
+function scenarios() {
+  $("scenarios").innerHTML = SCENARIOS.map((x) => '<button type="button" class="scn" role="radio" aria-checked="' + (x.id === SCN.actif) + '" data-id="' + x.id + '">' + x.nom + '</button>').join("");
+  const c = $("contexte"); c.value = SCN.textes[SCN.actif];
+  c.placeholder = SCN.actif === "autre" ? "Décrivez le dossier : objet du rendez-vous, pour qui vous intervenez, points à surveiller." : "";
+}
+$("scenarios").addEventListener("click", (ev) => { const b = ev.target.closest(".scn"); if (!b) return; SCN.textes[SCN.actif] = $("contexte").value; SCN.actif = b.dataset.id; scenarios(); if (SCN.actif === "autre") $("contexte").focus(); });
+function contexteEnvoi() {
+  const x = SCENARIOS.find((q) => q.id === SCN.actif), t = $("contexte").value.trim();
+  return (x.id === "autre" ? "" : "Type de rendez-vous : " + x.nom + ". ") + t;
+}
+scenarios();
+
+/* ---------- dossier repliable ---------- */
+function plier(replie) {
+  $("grille").classList.toggle("replie", replie);
+  const b = $("b-plier"); b.textContent = replie ? "›" : "‹"; b.setAttribute("aria-expanded", String(!replie)); b.title = replie ? "Déplier le dossier" : "Replier le dossier";
+  try { localStorage.setItem("commente.replie", replie ? "1" : ""); } catch (e) {}
+  if (typeof vortexPlacer === "function") setTimeout(vortexPlacer, 0);
+}
+$("b-plier").addEventListener("click", () => plier(!$("grille").classList.contains("replie")));
 
 /* ---------- fil de la conversation ---------- */
 function ligneFil(html, classe) {
@@ -314,8 +448,8 @@ async function envoyer() {
     const r = await accesAppel("/api/commente", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contexte: $("contexte").value,
-        pieces: ETAT.pieces.filter((p) => p.texte).map((p) => ({ nom: p.nom, texte: p.texte })),
+        contexte: contexteEnvoi(),
+        pieces: ETAT.pieces.filter((p) => p.texte).map((p) => ({ nom: nomEnvoi(p), texte: p.texte })),
         deja: ETAT.coms.map((c) => c.texte),
         fil: avant.map((p) => ({ h: p.h, t: p.t })),
         nouvelles: lot.map((p) => ({ h: p.h, t: p.t })),
@@ -329,7 +463,7 @@ async function envoyer() {
     ETAT.delais.push(delai); majMesure();
     alerte("");
     const sur = lot.length ? lot.map((p) => p.t).join(" ") : "page affichée à " + (ecran ? ecran.h : "");
-    (d.commentaires || []).forEach((c) => afficherCom(c, sur, delai));
+    elementsRecus(d).forEach((c) => afficherCom(c, sur, delai));
   } catch (e) {
     alerte("Analyse impossible : " + (e.message || e) + ". Les phrases suivantes seront tout de même envoyées.");
   } finally {
@@ -337,19 +471,37 @@ async function envoyer() {
     if (ETAT.enAttente.length || ETAT.ecranNouveau) envoyer();
   }
 }
-const NATURES = { alerte: "Alerte", precision: "Précision", question: "Question à poser" };
+const TYPES = { projet: "Extrait du projet", dossier: "Élément du dossier", loi: "Article de loi", vigilance: "Point de vigilance" };
+const VERDICTS = { confirme: "Confirme", contredit: "Contredit", a_verifier: "À vérifier", question: "Question à poser" };
+function elementsRecus(d) {
+  if (Array.isArray(d.elements)) return d.elements;
+  // serveur resté en version précédente : on traduit ses commentaires
+  return (d.commentaires || []).map((c) => ({ type: c.piece ? "dossier" : "vigilance", verdict: c.nature === "alerte" ? "contredit" : c.nature === "question" ? "question" : "confirme", texte: c.texte, repere: c.repere || "", piece: c.piece || "", extrait: c.extrait || "", article: "" }));
+}
 function afficherCom(c, sur, delai) {
-  ETAT.coms.push({ ...c, h: heure(new Date()), sur, delai });
+  const type = TYPES[c.type] ? c.type : "vigilance", verdict = VERDICTS[c.verdict] ? c.verdict : "a_verifier";
+  ETAT.coms.push({ ...c, type, verdict, h: heure(new Date()), sur, delai });
   const z = $("coms"); if (ETAT.coms.length === 1) z.innerHTML = "";
-  const d = document.createElement("div"); d.className = "com " + c.nature;
-  d.innerHTML = '<div class="tete"><b>' + NATURES[c.nature] + '</b>' + (c.repere ? '<span class="repere">' + echap(c.repere) + '</span>' : '')
-    + '<span>' + heure(new Date()) + '</span><span>délai ' + delai + ' s</span></div>'
+  const d = document.createElement("div"); d.className = "el " + verdict + " t-" + type;
+  const loi = type === "loi" && c.article
+    ? '<div class="origine"><b>' + echap(c.article) + '</b>, cité de mémoire : <a target="_blank" rel="noopener" href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=' + encodeURIComponent(c.article) + '">vérifier sur Légifrance</a></div>'
+    : (type === "loi" ? '<div class="origine">Règle citée de mémoire : à vérifier dans le texte en vigueur.</div>' : '');
+  d.innerHTML = '<div class="tete"><span class="verdict">' + VERDICTS[verdict] + '</span><span class="type">' + TYPES[type] + '</span>'
+    + (c.repere ? '<span class="repere">' + echap(c.repere) + '</span>' : '') + '<span>' + heure(new Date()) + '</span><span>délai ' + delai + ' s</span></div>'
     + '<div class="texte">' + echap(c.texte) + '</div>'
-    + (c.piece || c.extrait ? '<div class="source">' + (c.piece ? echap(c.piece) : '') + (c.extrait ? (c.piece ? ' : ' : '') + '<q>' + echap(c.extrait) + '</q>' : '') + '</div>' : '')
+    + (c.extrait ? '<blockquote>' + echap(c.extrait) + '</blockquote>' : '')
+    + (c.piece ? '<div class="origine">' + echap(c.piece) + '</div>' : '') + loi
     + '<div class="sur">Sur : « ' + echap(sur.slice(0, 160)) + (sur.length > 160 ? "…" : "") + ' »</div>';
   z.prepend(d);
-  $("nb-com").textContent = ETAT.coms.length;
+  $("nb-com").textContent = ETAT.coms.length + " élément" + (ETAT.coms.length > 1 ? "s" : "");
 }
+const FILTRES = [["", "Tout"], ["projet", "Projet"], ["dossier", "Dossier"], ["loi", "Loi"], ["vigilance", "Vigilance"]];
+$("filtres").innerHTML = FILTRES.map(([id, nom], i) => '<button type="button" class="filtre" data-f="' + id + '" aria-pressed="' + (i === 0) + '">' + nom + '</button>').join("");
+$("filtres").addEventListener("click", (ev) => {
+  const b = ev.target.closest(".filtre"); if (!b) return;
+  $("coms").dataset.filtre = b.dataset.f;
+  $("filtres").querySelectorAll(".filtre").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+});
 function majMesure() {
   const t = ETAT.delais; if (!t.length) return;
   const moy = Math.round(t.reduce((s, x) => s + x, 0) / t.length);
@@ -362,7 +514,7 @@ const SOURCES = [
   { id: "moneta", nom: "MONETA", detail: () => "clauses", ang: -30 },
   { id: "articles", nom: "Articles", detail: () => "par thème", ang: 150 },
   { id: "compta", nom: "Comptabilité", detail: () => "module comptable", ang: 30 },
-  { id: "ecran", nom: "Écran", detail: () => "de la visio", ang: 90, video: true }
+  { id: "ecran", nom: "Écran", detail: () => "de la visio", ang: 118, video: true }
 ];
 const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, grains: [], t: 0, immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
 function vortexSources() {
@@ -381,7 +533,7 @@ function vortexPlacer() {
   VX.c.width = Math.round(VX.w * VX.dpr); VX.c.height = Math.round(VX.h * VX.dpr);
   $("sources").querySelectorAll(".vx-src").forEach((el) => {
     const s = SOURCES.find((x) => x.id === el.dataset.id), p = position(s);
-    el.style.left = p.x + "px"; el.style.top = (p.y + (s.ang === 90 ? -8 : 0)) + "px";
+    el.style.left = p.x + "px"; el.style.top = p.y + "px";
   });
   if (VX.immobile) vortexDessiner(true);
 }
@@ -412,7 +564,7 @@ function vortexDessiner(fixe) {
     });
   }
   // cœur
-  const pouls = mode && !fixe ? 1 + Math.sin(VX.t / 9) * 0.06 : 1, R = 30 * pouls;
+  const pouls = mode && !fixe ? 1 + Math.sin(VX.t / 9) * 0.06 : 1, R = Math.min(30, VX.h * 0.17) * pouls;
   const halo = g.createRadialGradient(cx, cy, 4, cx, cy, R * 2.2);
   halo.addColorStop(0, ETAT.enCours ? "rgba(255,152,45,.55)" : mode ? "rgba(51,131,139,.55)" : "rgba(51,131,139,.18)");
   halo.addColorStop(1, "rgba(15,34,56,0)");
@@ -671,12 +823,12 @@ async function lirePage() {
 /* ---------- compte rendu (texte brut, pour la synthèse après la réunion) ---------- */
 $("b-cr").addEventListener("click", () => {
   const d = new Date();
-  let t = "COMMENTE — compte rendu du " + d.toLocaleDateString("fr-FR") + "\n\nContexte : " + ($("contexte").value || "(non précisé)")
-    + "\nPièces : " + (ETAT.pieces.map((p) => p.nom).join(" ; ") || "(aucune)")
+  let t = "COMMENTE — compte rendu du " + d.toLocaleDateString("fr-FR") + "\n\nContexte : " + (contexteEnvoi() || "(non précisé)")
+    + "\nPièces : " + (ETAT.pieces.map((p) => nomEnvoi(p)).join(" ; ") || "(aucune)")
     + "\n\n=== CE QUI S'EST DIT (transcription automatique, interlocuteurs non distingués) ===\n"
     + ETAT.phrases.map((p) => "[" + p.h + "] " + p.t).join("\n")
-    + "\n\n=== COMMENTAIRES ===\n"
-    + ETAT.coms.map((c) => "[" + c.h + "] " + (NATURES[c.nature] || "") + (c.repere ? " (" + c.repere + ")" : "") + " — " + c.texte + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n")
+    + "\n\n=== ÉLÉMENTS QUI CONFIRMENT OU CONTESTENT ===\n"
+    + ETAT.coms.map((c) => "[" + c.h + "] " + VERDICTS[c.verdict] + " / " + TYPES[c.type] + (c.repere ? " (" + c.repere + ")" : "") + " — " + c.texte + (c.article ? "\n   Article cité de mémoire, à vérifier : " + c.article : "") + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n")
     + (ETAT.lectures.length ? "\n\n=== PAGES LUES À L'ÉCRAN (lecture automatique) ===\n" + ETAT.lectures.map((l) => "--- [" + l.h + "] ---\n" + l.texte).join("\n\n") : "");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([t], { type: "text/plain;charset=utf-8" }));
@@ -684,7 +836,8 @@ $("b-cr").addEventListener("click", () => {
   document.body.appendChild(a); a.click(); a.remove();
 });
 window.addEventListener("beforeunload", (ev) => { if (ETAT.phrases.length || ETAT.lectures.length) { ev.preventDefault(); ev.returnValue = ""; } });
-window.COMMENTE_ESSAI = { ETAT, fusionner, ressemblance, afficherCom, envoyer, get mode() { return mode; } };   // pour les essais
+try { if (localStorage.getItem("commente.replie")) plier(true); } catch (e) {}
+window.COMMENTE_ESSAI = { ETAT, fusionner, ressemblance, afficherCom, envoyer, classer, DOSSIERS, SCN, get mode() { return mode; } };   // pour les essais
 })();
 </script>
 
