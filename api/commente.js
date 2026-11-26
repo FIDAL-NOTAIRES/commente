@@ -1,4 +1,9 @@
-// COMMENTE — v0.3 (26/11/2026 soir) — fonction serveur unique : commentaire en marge d'une réunion.
+// COMMENTE — v0.4 (26/11/2026 nuit) — fonction serveur unique : éléments qui confirment ou contestent ce qui se dit.
+// v0.4 : la réponse n'est plus une liste de commentaires mais une liste d'ÉLÉMENTS typés (extrait du projet, élément du dossier,
+// article de loi, point de vigilance) avec une appréciation (confirme, contredit, à vérifier, question) ; quatre au plus.
+// Les articles de loi sont cités de mémoire par le modèle : la page les présente toujours comme « à vérifier ».
+// La réponse garde aussi l'ancienne clé « commentaires », pour une page restée en version précédente.
+// (historique) v0.3 (26/11/2026 soir) :
 // v0.3 : en mode « Audio + vidéo », la page reçoit aussi le TEXTE de la page affichée à l'écran de la visio (lu sur le poste,
 // aucune image transmise) ; l'analyse le compare aux pièces (projet d'acte reçu) et à ce qui se dit, et chaque commentaire
 // peut indiquer l'article ou le passage visé (« repere »). Une page nouvellement affichée suffit à demander une analyse.
@@ -18,35 +23,40 @@ const MAX_PIECES = 400000;   // caractères, toutes pièces confondues
 const MAX_ECRAN = 20000;     // caractères de la page affichée à l'écran
 
 const CONSIGNES = `Tu assistes un notaire de FIDAL Notaires pendant une réunion (visio ou rendez-vous). Tu entends la conversation par une transcription automatique, imparfaite : des mots peuvent être mal reconnus et les interlocuteurs ne sont pas distingués.
-Ton rôle : écrire en marge des COMMENTAIRES utiles au notaire, à partir des pièces du dossier qu'il t'a confiées.
+Ton rôle : afficher, en regard de ce qui se dit, les ÉLÉMENTS qui le CONFIRMENT ou qui le CONTESTENT, tirés des pièces du dossier et du droit applicable. Le notaire les lit d'un coup d'œil pendant que la réunion continue.
 
-Tu commentes seulement quand c'est utile, par exemple :
-- ce qui vient d'être dit contredit une pièce (prix, date, surface, superficie, tantièmes, condition, diagnostic, clause) ;
-- ce qui est dit est exact, mais une pièce apporte une précision importante ;
-- un chiffre, une date ou une affirmation mérite d'être vérifié avant d'être accepté ;
-- un point juridique ou de vigilance notariale apparaît (condition suspensive, délai, droit de préemption, copropriété, urbanisme, fiscalité) ;
-- une question utile à poser maintenant.
-Sinon, tu te tais : une réunion banale ne demande aucun commentaire. Ne répète jamais un commentaire déjà donné.
+Les pièces sont rangées en sous-dossiers ; leur nom commence par le sous-dossier (« Projet d'acte / … », « Copropriété / … », « Diagnostics / … »).
 
-Forme de chaque commentaire :
-- une ou deux phrases courtes, lisibles d'un coup d'œil, en français correct, sans aucun mot anglais ;
-- « piece » : le nom exact de la pièce sur laquelle tu t'appuies (vide si aucune) ;
-- « extrait » : un passage court et exact de cette pièce, recopié mot pour mot (vide si aucun) ;
-- « nature » : "alerte" (contradiction ou risque), "precision" (ce que disent les pièces) ou "question" (question à poser).
-N'invente jamais le contenu d'une pièce : si les pièces ne disent rien sur le point, dis-le ou tais-toi.
-On parle de l'office ou de l'étude, jamais du cabinet.
+Quatre types d'élément (« type ») :
+- "projet" : un extrait du projet d'acte (pièce du sous-dossier « Projet d'acte ») ;
+- "dossier" : un élément d'une autre pièce du dossier ;
+- "loi" : un article de loi ou une règle de droit applicable ;
+- "vigilance" : un point de vigilance notariale ou une question à poser, sans pièce à l'appui.
 
-Réponds UNIQUEMENT par un objet JSON, sans texte autour ni balises :
-{"commentaires":[{"nature":"alerte","texte":"…","piece":"…","extrait":"…"}]}
-Au plus deux commentaires. S'il n'y a rien d'utile : {"commentaires":[]}
+Quatre appréciations (« verdict ») :
+- "confirme" : la pièce ou le texte dit la même chose que ce qui vient d'être dit ;
+- "contredit" : la pièce ou le texte dit autre chose (prix, date, surface, nom, délai, condition, clause, règle) ;
+- "a_verifier" : le point ne peut pas être tranché avec les pièces, ou l'écart peut venir d'une erreur de transcription ou de lecture ;
+- "question" : question utile à poser maintenant.
+
+Quand un fait vérifiable est énoncé (prix, date, surface, tantièmes, nom, délai, condition suspensive, clause, charge, diagnostic, règle de droit), cherche-le dans les pièces et montre l'extrait exact. Une confirmation est utile au notaire sur un point important ; elle est inutile sur une banalité. Commence par les contradictions.
+Si rien de ce qui vient d'être dit n'est vérifiable ni notable, ne renvoie rien. Ne répète jamais un élément déjà donné.
+
+Règles impératives :
+- N'invente jamais le contenu d'une pièce. « extrait » est un passage court recopié mot pour mot ; « piece » est le nom exact de la pièce. Si les pièces ne disent rien du point, utilise "a_verifier" ou tais-toi.
+- Type "loi" : expose la règle en une phrase. Ne remplis « article » (par exemple « article 1589 du Code civil ») que si tu es certain à la fois du numéro et du contenu ; dans le doute, laisse « article » vide et décris seulement la règle. Tu cites de mémoire : le notaire vérifiera.
+- « texte » : une ou deux phrases courtes, en français correct, sans aucun mot anglais. On parle de l'office ou de l'étude, jamais du cabinet.
+- « repere » : l'article, le titre ou le passage de l'acte concerné, tel qu'il apparaît (par exemple « Article 7 – Conditions suspensives ») ; vide si aucun.
 
 PAGE AFFICHÉE À L'ÉCRAN (quand elle t'est fournie) : c'est le texte de l'acte ou du document que les participants font défiler dans la visio, lu automatiquement à l'écran. Cette lecture peut contenir des erreurs de caractères (lettres ou chiffres mal reconnus, coupures de lignes).
-- Compare-la aux pièces, en particulier au projet d'acte reçu : signale toute clause ajoutée, supprimée ou modifiée, tout chiffre, date, nom ou condition qui diffère (nature "alerte").
-- Compare-la à ce qui se dit : si un interlocuteur annonce autre chose que ce qui est écrit à l'écran, signale l'écart (nature "alerte").
-- Un écart qui pourrait venir d'une simple erreur de lecture (un chiffre isolé, une lettre) se signale comme « à vérifier », sans l'affirmer.
-- Ne commente pas la mise en page ni les fautes de frappe sans portée.
-Ajoute alors « repere » : l'article, le titre ou le passage de l'acte concerné, tel qu'il apparaît (par exemple « Article 7 – Conditions suspensives ») ; vide si aucun.
-Format complet : {"commentaires":[{"nature":"alerte","texte":"…","repere":"…","piece":"…","extrait":"…"}]}`;
+- Compare-la aux pièces, en particulier au projet d'acte reçu : signale toute clause ajoutée, supprimée ou modifiée, tout chiffre, date, nom ou condition qui diffère ("contredit").
+- Compare-la à ce qui se dit : si un interlocuteur annonce autre chose que ce qui est écrit à l'écran, signale l'écart ("contredit").
+- Un écart qui pourrait venir d'une simple erreur de lecture (un chiffre isolé, une lettre) est "a_verifier", sans l'affirmer.
+- Ne commente ni la mise en page ni les fautes de frappe sans portée.
+
+Réponds UNIQUEMENT par un objet JSON, sans texte autour ni balises :
+{"elements":[{"type":"projet","verdict":"contredit","texte":"…","repere":"…","piece":"…","extrait":"…","article":""}]}
+Au plus quatre éléments. S'il n'y a rien d'utile : {"elements":[]}`;
 
 function lignes(tab) {
   return (Array.isArray(tab) ? tab : []).map((p) => `[${String(p.h || "").slice(0, 8)}] ${String(p.t || "").slice(0, 2000)}`).join("\n");
@@ -54,7 +64,7 @@ function lignes(tab) {
 
 module.exports = async function handler(req, res) {
   if (req.method === "GET") {
-    res.status(200).json({ outil: "commente", version: "0.3", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
+    res.status(200).json({ outil: "commente", version: "0.4", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
     return;
   }
   if (req.method !== "POST") { res.status(405).json({ erreur: "Méthode non admise." }); return; }
@@ -106,7 +116,7 @@ module.exports = async function handler(req, res) {
     r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODELE, max_tokens: 700, system: CONSIGNES, messages: [{ role: "user", content: contenu }] })
+      body: JSON.stringify({ model: MODELE, max_tokens: 1200, system: CONSIGNES, messages: [{ role: "user", content: contenu }] })
     });
     d = await r.json().catch(() => ({}));
   } catch (e) {
@@ -117,22 +127,30 @@ module.exports = async function handler(req, res) {
     res.status(502).json({ erreur: "Analyse refusée : " + m }); return;
   }
   const texte = (d.content || []).filter((b) => b.type === "text").map((b) => b.text).join("").replace(/```json|```/g, "").trim();
-  let commentaires = [];
+  const TYPES = ["projet", "dossier", "loi", "vigilance"], VERDICTS = ["confirme", "contredit", "a_verifier", "question"];
+  let elements = [];
   try {
     const a = texte.indexOf("{"), b = texte.lastIndexOf("}");
     const o = JSON.parse(texte.slice(a, b + 1));
-    commentaires = (Array.isArray(o.commentaires) ? o.commentaires : []).slice(0, 2)
-      .filter((c) => c && c.texte)
+    elements = (Array.isArray(o.elements) ? o.elements : [])
+      .filter((c) => c && c.texte).slice(0, 4)
       .map((c) => ({
-        nature: ["alerte", "precision", "question"].includes(c.nature) ? c.nature : "precision",
+        type: TYPES.includes(c.type) ? c.type : "vigilance",
+        verdict: VERDICTS.includes(c.verdict) ? c.verdict : "a_verifier",
         texte: String(c.texte).slice(0, 600),
         repere: String(c.repere || "").slice(0, 160),
-        piece: String(c.piece || "").slice(0, 200),
-        extrait: String(c.extrait || "").slice(0, 400)
+        piece: String(c.piece || "").slice(0, 240),
+        extrait: String(c.extrait || "").slice(0, 500),
+        article: String(c.article || "").slice(0, 120)
       }));
-  } catch (e) { commentaires = []; }
+  } catch (e) { elements = []; }
+  const commentaires = elements.map((c) => ({
+    nature: c.verdict === "contredit" ? "alerte" : c.verdict === "question" ? "question" : "precision",
+    texte: c.texte, repere: c.repere, piece: c.piece, extrait: c.extrait
+  }));
   const u = d.usage || {};
   res.status(200).json({
+    elements,
     commentaires,
     duree_ms: Date.now() - debut,
     modele: MODELE,
