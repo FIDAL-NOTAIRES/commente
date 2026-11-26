@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>COMMENTE — FIDAL Notaires</title>
-<!-- COMMENTE v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+<!-- COMMENTE v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
      Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
      sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
      suivre la visio sur haut-parleurs, pas au casque. -->
@@ -133,7 +133,44 @@ button{font:inherit;cursor:pointer}
 </main>
 
 <script>
-/* ==================== COMMENTE v0.1 — 26/11/2026 ==================== */
+/* ==================== COMMENTE v0.2 — 26/11/2026 ==================== */
+/* ---------- appels au serveur sous la garde de CARNET (lot 5 de CARNET, 26/11/2026) ----------
+   Les fonctions du serveur de COMMENTE vérifient désormais la personne : chaque appel porte sa connexion
+   (en-tête X-Carnet-Jeton, celle que le voile garde sur le poste). L'appel attend que le voile soit levé ;
+   si la connexion a expiré en cours de travail, l'écran de connexion revient par-dessus la page,
+   rien n'est perdu, et l'appel repart tout seul une fois la personne reconnectée. */
+const ACCES_CLE_POSTE = "commente.acces";
+function accesAttendre(){
+  if(window.ACCES_OUVERT) return Promise.resolve();
+  if(!window.ACCES_PRET) window.ACCES_PRET = new Promise(r => { window.ACCES_PRET_OK = r; });
+  return window.ACCES_PRET;
+}
+function accesMarquerOuvert(){
+  window.ACCES_OUVERT = true;
+  const ok = window.ACCES_PRET_OK; window.ACCES_PRET = null; window.ACCES_PRET_OK = null;
+  if(ok) ok();
+}
+function accesJeton(){ try{ const g = JSON.parse(localStorage.getItem(ACCES_CLE_POSTE) || "null"); return g && g.jeton ? g.jeton : ""; }catch(e){ return ""; } }
+async function accesAppel(url, options){
+  let jeton = "";
+  const envoi = async () => {
+    await accesAttendre();
+    const o = Object.assign({}, options || {}); o.headers = Object.assign({}, o.headers || {});
+    jeton = accesJeton(); if(jeton) o.headers["X-Carnet-Jeton"] = jeton;
+    return fetch(url, o);
+  };
+  let r = await envoi();
+  if(r.status === 401 && r.headers.get("X-Acces") === "carnet" && typeof accesEcranConnexion === "function"){
+    // la connexion refusée est encore celle du poste : on redemande les initiales ; sinon une autre requête l'a déjà fait
+    if(window.ACCES_OUVERT && accesJeton() === jeton){
+      window.ACCES_OUVERT = false; window.ACCES_PRET = null; window.ACCES_PRET_OK = null;
+      try{ localStorage.removeItem(ACCES_CLE_POSTE); }catch(e){}
+      accesEcranConnexion("Connexion expirée, reconnectez-vous.");
+    }
+    r = await envoi();
+  }
+  return r;
+}
 (function () {
 const $ = (id) => document.getElementById(id);
 const echap = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -219,7 +256,7 @@ async function envoyer() {
   const avant = ETAT.phrases.slice(0, ETAT.phrases.length - lot.length).slice(-12);
   $("attente").textContent = "Analyse en cours…";
   try {
-    const r = await fetch("/api/commente", {
+    const r = await accesAppel("/api/commente", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contexte: $("contexte").value,
@@ -347,7 +384,7 @@ function accesEchap(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, c =
    si CARNET ne répond pas, les derniers droits connus du poste valent sept jours.
    Option A du 21/11 : PLATEFORME transmet la connexion dans le fragment de l'adresse (#acces=…) ; à défaut
    (favori, lien d'un courriel), COMMENTE affiche son propre écran de connexion, mêmes initiales, même mot de passe.
-   Ce voile protège l'ÉCRAN ; les fonctions du serveur de COMMENTE ne vérifient pas encore la personne.
+   Ce voile protège l'ÉCRAN ; depuis le lot 5 de CARNET (26/11/2026), les fonctions du serveur de COMMENTE vérifient elles aussi la personne (voir accesAppel).
    COMMENTE n'est ouvert qu'à l'administrateur général tant qu'aucun profil ne l'allume.
  */
 const ACCES = { CARNET: "https://carnet-ivory.vercel.app/api/carnet", OUTIL: "commente", PLATEFORME: "https://phare-ashy.vercel.app/", CLE: "commente.acces", REPLI_MS: 7 * 864e5 };
@@ -365,6 +402,7 @@ async function accesCarnet(action, corps){
 function accesCarte(html){ const v = document.getElementById("acces-voile"); v.hidden = false; document.getElementById("acces-carte").innerHTML = "<h2>COMMENTE</h2>" + html; }
 function accesOuvrir(niveau, personne, repli){
   window.ACCES_COMMENTE = { verifie: true, niveau, personne: personne || null };
+  if(typeof accesMarquerOuvert === "function") accesMarquerOuvert();   // lot 5 : les appels au serveur en attente partent
   document.getElementById("acces-voile").hidden = true;
   const b = document.getElementById("acces-bandeau"); if(b) b.remove();
   if(repli){ const z = document.createElement("div"); z.id = "acces-bandeau"; z.textContent = "CARNET ne répond pas : accès ouvert sur vos derniers droits connus (valables sept jours)."; document.body.appendChild(z); }
@@ -403,7 +441,7 @@ function accesDecider(d, jeton){
 }
 async function accesVerifier(){
   // en local (fichier ouvert hors ligne, essais) le voile ne joue pas : aucune fonction du serveur n'y est joignable
-  if(location.protocol === "file:" && !window.ACCES_ESSAI){ document.getElementById("acces-voile").hidden = true; return; }
+  if(location.protocol === "file:" && !window.ACCES_ESSAI){ document.getElementById("acces-voile").hidden = true; if(typeof accesMarquerOuvert === "function") accesMarquerOuvert(); return; }
   let jeton = null; const m = /[#&]acces=([^&]+)/.exec(location.hash || "");
   if(m){ try{ jeton = decodeURIComponent(m[1]); }catch(e){ jeton = null; }
     try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){} }   // le jeton ne reste pas dans l'adresse
