@@ -1,4 +1,7 @@
-// COMMENTE — v0.2 (26/11/2026) — fonction serveur unique : commentaire en marge d'une réunion.
+// COMMENTE — v0.3 (26/11/2026 soir) — fonction serveur unique : commentaire en marge d'une réunion.
+// v0.3 : en mode « Audio + vidéo », la page reçoit aussi le TEXTE de la page affichée à l'écran de la visio (lu sur le poste,
+// aucune image transmise) ; l'analyse le compare aux pièces (projet d'acte reçu) et à ce qui se dit, et chaque commentaire
+// peut indiquer l'article ou le passage visé (« repere »). Une page nouvellement affichée suffit à demander une analyse.
 // Reçoit le contexte, les pièces du dossier (texte déjà extrait par la page), le fil récent de la conversation
 // et les nouvelles phrases entendues ; renvoie 0 à 2 commentaires courts, rattachés aux pièces.
 // Variables Vercel : ANTHROPIC_API_KEY (obligatoire) ; COMMENTE_MODELE (facultatif, par défaut claude-haiku-5-5,
@@ -12,6 +15,7 @@ const { verifierPersonne } = require("./_acces.js");
 
 const MODELE = process.env.COMMENTE_MODELE || "claude-haiku-5-5";
 const MAX_PIECES = 400000;   // caractères, toutes pièces confondues
+const MAX_ECRAN = 20000;     // caractères de la page affichée à l'écran
 
 const CONSIGNES = `Tu assistes un notaire de FIDAL Notaires pendant une réunion (visio ou rendez-vous). Tu entends la conversation par une transcription automatique, imparfaite : des mots peuvent être mal reconnus et les interlocuteurs ne sont pas distingués.
 Ton rôle : écrire en marge des COMMENTAIRES utiles au notaire, à partir des pièces du dossier qu'il t'a confiées.
@@ -34,7 +38,15 @@ On parle de l'office ou de l'étude, jamais du cabinet.
 
 Réponds UNIQUEMENT par un objet JSON, sans texte autour ni balises :
 {"commentaires":[{"nature":"alerte","texte":"…","piece":"…","extrait":"…"}]}
-Au plus deux commentaires. S'il n'y a rien d'utile : {"commentaires":[]}`;
+Au plus deux commentaires. S'il n'y a rien d'utile : {"commentaires":[]}
+
+PAGE AFFICHÉE À L'ÉCRAN (quand elle t'est fournie) : c'est le texte de l'acte ou du document que les participants font défiler dans la visio, lu automatiquement à l'écran. Cette lecture peut contenir des erreurs de caractères (lettres ou chiffres mal reconnus, coupures de lignes).
+- Compare-la aux pièces, en particulier au projet d'acte reçu : signale toute clause ajoutée, supprimée ou modifiée, tout chiffre, date, nom ou condition qui diffère (nature "alerte").
+- Compare-la à ce qui se dit : si un interlocuteur annonce autre chose que ce qui est écrit à l'écran, signale l'écart (nature "alerte").
+- Un écart qui pourrait venir d'une simple erreur de lecture (un chiffre isolé, une lettre) se signale comme « à vérifier », sans l'affirmer.
+- Ne commente pas la mise en page ni les fautes de frappe sans portée.
+Ajoute alors « repere » : l'article, le titre ou le passage de l'acte concerné, tel qu'il apparaît (par exemple « Article 7 – Conditions suspensives ») ; vide si aucun.
+Format complet : {"commentaires":[{"nature":"alerte","texte":"…","repere":"…","piece":"…","extrait":"…"}]}`;
 
 function lignes(tab) {
   return (Array.isArray(tab) ? tab : []).map((p) => `[${String(p.h || "").slice(0, 8)}] ${String(p.t || "").slice(0, 2000)}`).join("\n");
@@ -42,7 +54,7 @@ function lignes(tab) {
 
 module.exports = async function handler(req, res) {
   if (req.method === "GET") {
-    res.status(200).json({ outil: "commente", version: "0.2", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
+    res.status(200).json({ outil: "commente", version: "0.3", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
     return;
   }
   if (req.method !== "POST") { res.status(405).json({ erreur: "Méthode non admise." }); return; }
@@ -52,7 +64,10 @@ module.exports = async function handler(req, res) {
 
   let corps = req.body;
   if (typeof corps === "string") { try { corps = JSON.parse(corps); } catch (e) { corps = null; } }
-  if (!corps || !Array.isArray(corps.nouvelles) || !corps.nouvelles.length) { res.status(400).json({ erreur: "Aucune phrase à commenter." }); return; }
+  const ecran = corps && corps.ecran && typeof corps.ecran === "object" && String(corps.ecran.texte || "").trim()
+    ? { h: String(corps.ecran.h || "").slice(0, 8), texte: String(corps.ecran.texte).slice(0, MAX_ECRAN), nouvelle: !!corps.ecran.nouvelle } : null;
+  const nouvelles = corps && Array.isArray(corps.nouvelles) ? corps.nouvelles : [];
+  if (!corps || (!nouvelles.length && !(ecran && ecran.nouvelle))) { res.status(400).json({ erreur: "Aucune phrase ni page à commenter." }); return; }
 
   const pieces = (Array.isArray(corps.pieces) ? corps.pieces : []).filter((p) => p && p.texte);
   let total = 0;
@@ -74,8 +89,16 @@ module.exports = async function handler(req, res) {
     text: "CONTEXTE DONNÉ PAR LE NOTAIRE : " + (String(corps.contexte || "").slice(0, 1500) || "(non précisé)")
       + "\n\nCOMMENTAIRES DÉJÀ DONNÉS (ne pas répéter) :\n" + (deja || "(aucun)")
       + "\n\nFIL RÉCENT DE LA CONVERSATION :\n" + (lignes(corps.fil) || "(début de réunion)")
-      + "\n\nCE QUI VIENT D'ÊTRE DIT (à commenter s'il y a lieu) :\n" + lignes(corps.nouvelles)
+      + "\n\nCE QUI VIENT D'ÊTRE DIT (à commenter s'il y a lieu) :\n" + (lignes(nouvelles) || "(rien de nouveau)")
   });
+  if (ecran) {
+    contenu.push({
+      type: "text",
+      text: "PAGE AFFICHÉE À L'ÉCRAN (lue à " + ecran.h + ", lecture automatique) :\n<ecran>\n" + ecran.texte + "\n</ecran>"
+        + (ecran.nouvelle ? "\n\nCette page VIENT DE S'AFFICHER : compare-la aux pièces et à ce qui se dit."
+          : "\n\nCette page était déjà affichée et a déjà été examinée : ne reviens dessus que si ce qui vient d'être dit s'y rapporte.")
+    });
+  }
 
   const debut = Date.now();
   let r, d;
@@ -103,6 +126,7 @@ module.exports = async function handler(req, res) {
       .map((c) => ({
         nature: ["alerte", "precision", "question"].includes(c.nature) ? c.nature : "precision",
         texte: String(c.texte).slice(0, 600),
+        repere: String(c.repere || "").slice(0, 160),
         piece: String(c.piece || "").slice(0, 200),
         extrait: String(c.extrait || "").slice(0, 400)
       }));
