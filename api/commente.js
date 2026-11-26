@@ -1,11 +1,14 @@
-// COMMENTE — v0.1 (26/11/2026) — fonction serveur unique : commentaire en marge d'une réunion.
+// COMMENTE — v0.2 (26/11/2026) — fonction serveur unique : commentaire en marge d'une réunion.
 // Reçoit le contexte, les pièces du dossier (texte déjà extrait par la page), le fil récent de la conversation
 // et les nouvelles phrases entendues ; renvoie 0 à 2 commentaires courts, rattachés aux pièces.
 // Variables Vercel : ANTHROPIC_API_KEY (obligatoire) ; COMMENTE_MODELE (facultatif, par défaut claude-haiku-5-5,
 // choisi pour la rapidité : le délai entre la phrase dite et le commentaire affiché est l'enjeu de l'outil).
 // Les pièces forment le premier bloc du message et sont MISES EN CACHE : d'un appel à l'autre de la même réunion,
 // elles ne sont pas relues en entier, ce qui réduit le délai et le coût.
-// Comme les autres outils voilés, cette fonction ne vérifie pas encore la personne (le voile protège l'écran).
+// v0.2 : la fonction VÉRIFIE LA PERSONNE auprès de CARNET avant tout appel payant (voir api/_acces.js) :
+// sans connexion valide ou sans droit sur COMMENTE, elle refuse et la clé d'analyse n'est jamais sollicitée.
+
+const { verifierPersonne } = require("./_acces.js");
 
 const MODELE = process.env.COMMENTE_MODELE || "claude-haiku-5-5";
 const MAX_PIECES = 400000;   // caractères, toutes pièces confondues
@@ -39,10 +42,12 @@ function lignes(tab) {
 
 module.exports = async function handler(req, res) {
   if (req.method === "GET") {
-    res.status(200).json({ outil: "commente", version: "0.1", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
+    res.status(200).json({ outil: "commente", version: "0.2", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
     return;
   }
   if (req.method !== "POST") { res.status(405).json({ erreur: "Méthode non admise." }); return; }
+  const qui = await verifierPersonne(req, "commente");
+  if (!qui.ok) { if (qui.expire) res.setHeader("X-Acces", "carnet"); res.status(qui.code).json({ erreur: qui.message }); return; }
   if (!process.env.ANTHROPIC_API_KEY) { res.status(500).json({ erreur: "Clé ANTHROPIC_API_KEY absente des variables Vercel." }); return; }
 
   let corps = req.body;
