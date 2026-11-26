@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>COMMENTE — FIDAL Notaires</title>
-<!-- COMMENTE v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+<!-- COMMENTE v0.5 (26/11/2026 nuit, demande JFD : les sources en SILOS côte à côte, chacune reliée par un trait à la zone des boutons ; le vortex est retiré) ; v0.4.1 (26/11/2026 nuit : la page ne dépasse plus de la fenêtre, le champ de saisie du bas n'est plus coupé) ; v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
      Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
      sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
      suivre la visio sur haut-parleurs, pas au casque. -->
@@ -172,7 +172,21 @@ button{font:inherit;cursor:pointer}
 .el .origine a{color:var(--canard)}
 .el .sur{margin-top:4px;font-size:11.5px;color:var(--gris)}
 #coms[data-filtre="projet"] .el:not(.t-projet),#coms[data-filtre="dossier"] .el:not(.t-dossier),#coms[data-filtre="loi"] .el:not(.t-loi),#coms[data-filtre="vigilance"] .el:not(.t-vigilance){display:none}
-@media (max-width:1000px){#grille,#grille.replie{grid-template-columns:1fr;height:auto}#grille.replie .g-tete{flex-direction:row;padding:10px 10px 6px 16px}#grille.replie .g-tete h2{writing-mode:horizontal-tb;transform:none;order:0;font-size:15px;color:var(--nuit)}#duo{grid-template-columns:1fr}#duo>section:first-child{border-right:0;border-bottom:1px solid var(--trait)}#duo .defile{max-height:55vh}}
+/* v0.4.1 : la zone de travail prend exactement la hauteur restante, quelle que soit la hauteur de la barre du haut */
+body{display:flex;flex-direction:column}
+#barre,#alerte{flex:none}
+#grille{flex:1;min-height:0;height:auto}
+@media (max-width:1000px){body{display:block}#grille,#grille.replie{grid-template-columns:1fr;height:auto}#grille.replie .g-tete{flex-direction:row;padding:10px 10px 6px 16px}#grille.replie .g-tete h2{writing-mode:horizontal-tb;transform:none;order:0;font-size:15px;color:var(--nuit)}#duo{grid-template-columns:1fr}#duo>section:first-child{border-right:0;border-bottom:1px solid var(--trait)}#duo .defile{max-height:55vh}}
+/* ==================== v0.5 — sources en silos côte à côte, reliées à la zone des boutons ==================== */
+#sources-zone{max-width:1040px;margin:0 auto}
+#sources{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.silo{background:var(--nuit);color:#8EA3BA;border-radius:16px 16px 3px 3px;padding:11px 8px 9px;text-align:center;font-size:12px;line-height:1.3;border-bottom:4px solid #2B4763;transition:border-color .3s}
+.silo b{display:block;font-size:14px;font-weight:600;color:#C9D5E2;letter-spacing:.3px;transition:color .3s}
+.silo small{font-size:12px;transition:color .3s}
+.silo.vive{border-bottom-color:var(--cyan)}.silo.vive b{color:#fff}.silo.vive small{color:var(--cyan)}
+#vortex-c{display:block;width:100%;height:50px}
+#commandes{padding-top:0}
+@media (max-width:620px){#sources{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
 </style>
 </head>
 <body>
@@ -204,7 +218,7 @@ button{font:inherit;cursor:pointer}
   </aside>
   <div id="principal">
     <div id="centre-haut">
-      <div id="vortex" aria-hidden="true"><canvas id="vortex-c"></canvas><div id="sources"></div><span id="coeur">COMMENTE</span></div>
+      <div id="sources-zone" aria-hidden="true"><div id="sources"></div><canvas id="vortex-c"></canvas></div>
       <div id="commandes">
         <button class="rond" id="b-audio" type="button" aria-pressed="false">
           <span class="disque"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></span>
@@ -240,7 +254,7 @@ button{font:inherit;cursor:pointer}
 </main>
 
 <script>
-/* ==================== COMMENTE v0.4 — 26/11/2026 ==================== */
+/* ==================== COMMENTE v0.5 — 26/11/2026 ==================== */
 /* ---------- appels au serveur sous la garde de CARNET (lot 5 de CARNET, 26/11/2026) ----------
    Les fonctions du serveur de COMMENTE vérifient désormais la personne : chaque appel porte sa connexion
    (en-tête X-Carnet-Jeton, celle que le voile garde sur le poste). L'appel attend que le voile soit levé ;
@@ -508,79 +522,55 @@ function majMesure() {
   $("mesure").textContent = "Délai moyen " + moy + " s (dernier " + t[t.length - 1] + " s)";
 }
 
-/* ---------- vortex des sources (visuel) ---------- */
+/* ---------- sources en silos (visuel) : quatre silos côte à côte, chacun relié par un trait à la zone des boutons.
+   Quand l'écoute est lancée, des grains descendent les traits ; ils accélèrent et passent à l'orange pendant une analyse.
+   Seul le dossier est réellement lu ; MONETA, les articles et la comptabilité ne sont pas encore branchés. ---------- */
 const SOURCES = [
-  { id: "dossier", nom: "Dossier", detail: () => ETAT.pieces.length ? ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "") : "aucune pièce", ang: -150 },
-  { id: "moneta", nom: "MONETA", detail: () => "clauses", ang: -30 },
-  { id: "articles", nom: "Articles", detail: () => "par thème", ang: 150 },
-  { id: "compta", nom: "Comptabilité", detail: () => "module comptable", ang: 30 },
-  { id: "ecran", nom: "Écran", detail: () => "de la visio", ang: 118, video: true }
+  { id: "dossier", nom: "Dossier", detail: () => ETAT.pieces.length ? ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "") : "aucune pièce" },
+  { id: "moneta", nom: "MONETA", detail: () => "clauses" },
+  { id: "articles", nom: "Articles", detail: () => "par thème" },
+  { id: "compta", nom: "Comptabilité", detail: () => "module comptable" }
 ];
-const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, grains: [], t: 0, immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
+const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, x: [], grains: [], immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
 function vortexSources() {
-  $("sources").innerHTML = SOURCES.map((s) => {
-    const allumee = mode && (!s.video || mode === "video");
-    return '<div class="vx-src ' + (allumee ? "vive" : (s.video && mode !== "video" ? "eteinte" : "")) + '" data-id="' + s.id + '"><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></div>';
-  }).join("");
+  $("sources").innerHTML = SOURCES.map((s) => '<div class="silo' + (mode ? " vive" : "") + '" data-id="' + s.id + '"><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></div>').join("");
   vortexPlacer();
 }
-function position(s) {
-  const a = s.ang * Math.PI / 180;
-  return { x: VX.w / 2 + Math.cos(a) * VX.w * 0.36, y: VX.h / 2 + Math.sin(a) * VX.h * 0.36 };
-}
 function vortexPlacer() {
-  const b = $("vortex").getBoundingClientRect(); VX.w = b.width; VX.h = b.height; VX.dpr = window.devicePixelRatio || 1;
+  const b = VX.c.getBoundingClientRect(); VX.w = b.width; VX.h = b.height; VX.dpr = window.devicePixelRatio || 1;
   VX.c.width = Math.round(VX.w * VX.dpr); VX.c.height = Math.round(VX.h * VX.dpr);
-  $("sources").querySelectorAll(".vx-src").forEach((el) => {
-    const s = SOURCES.find((x) => x.id === el.dataset.id), p = position(s);
-    el.style.left = p.x + "px"; el.style.top = p.y + "px";
-  });
-  if (VX.immobile) vortexDessiner(true);
+  VX.x = [...$("sources").querySelectorAll(".silo")].map((el) => { const r = el.getBoundingClientRect(); return r.left + r.width / 2 - b.left; });
+  vortexDessiner(true);
+}
+function trait(i, t) {
+  // du pied du silo (en haut) vers le point de jonction, au-dessus des boutons (en bas, au centre)
+  const x0 = VX.x[i], x3 = VX.w / 2, h = VX.h - 5, u = 1 - t;
+  const y1 = h * 0.8, y2 = h * 0.2;
+  return { x: u * u * u * x0 + 3 * u * u * t * x0 + 3 * u * t * t * x3 + t * t * t * x3, y: 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * h };
 }
 function vortexDessiner(fixe) {
-  const g = VX.c.getContext("2d"), w = VX.w, h = VX.h, cx = w / 2, cy = h / 2;
-  g.setTransform(VX.dpr, 0, 0, VX.dpr, 0, 0);
-  g.fillStyle = fixe ? "#0F2238" : "rgba(15,34,56,.22)"; g.fillRect(0, 0, w, h);
-  const actives = SOURCES.filter((s) => mode && (!s.video || mode === "video"));
-  // bras de la spirale, de chaque source vers le cœur
-  SOURCES.forEach((s) => {
-    const p = position(s), on = actives.includes(s);
+  const g = VX.c.getContext("2d"), w = VX.w, h = VX.h;
+  g.setTransform(VX.dpr, 0, 0, VX.dpr, 0, 0); g.clearRect(0, 0, w, h);
+  VX.x.forEach((x, i) => {
     g.beginPath();
-    for (let k = 0; k <= 40; k++) {
-      const t = k / 40, pt = spirale(p, t);
-      k ? g.lineTo(pt.x, pt.y) : g.moveTo(pt.x, pt.y);
-    }
-    g.strokeStyle = on ? "rgba(109,213,220,.16)" : "rgba(142,163,186,.08)"; g.lineWidth = 1; g.stroke();
+    for (let k = 0; k <= 30; k++) { const p = trait(i, k / 30); k ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y); }
+    g.strokeStyle = mode ? "rgba(51,131,139,.55)" : "#C5CCD6"; g.lineWidth = mode ? 1.6 : 1.2; g.stroke();
   });
-  // grains qui descendent la spirale
-  if (!fixe) {
-    actives.forEach((s) => { if (Math.random() < (ETAT.enCours ? 0.5 : 0.28)) VX.grains.push({ s, t: 0, v: 0.006 + Math.random() * 0.006 }); });
-    VX.grains = VX.grains.filter((q) => q.t < 1);
+  if (!fixe && mode) {
+    VX.x.forEach((x, i) => { if (Math.random() < (ETAT.enCours ? 0.22 : 0.09)) VX.grains.push({ i, t: 0, v: 0.012 + Math.random() * 0.01 }); });
+    VX.grains = VX.grains.filter((q) => q.t < 1 && q.i < VX.x.length);
     VX.grains.forEach((q) => {
       q.t += q.v * (ETAT.enCours ? 1.8 : 1);
-      const pt = spirale(position(q.s), q.t), r = 1.1 + (1 - q.t) * 1.4;
-      g.beginPath(); g.arc(pt.x, pt.y, r, 0, Math.PI * 2);
-      g.fillStyle = q.s.video ? "rgba(255,152,45," + (0.35 + q.t * 0.6) + ")" : "rgba(109,213,220," + (0.3 + q.t * 0.6) + ")"; g.fill();
+      const p = trait(q.i, Math.min(q.t, 1));
+      g.beginPath(); g.arc(p.x, p.y, 2.4, 0, Math.PI * 2); g.fillStyle = ETAT.enCours ? "#FF982D" : "#33838B"; g.fill();
     });
-  }
-  // cœur
-  const pouls = mode && !fixe ? 1 + Math.sin(VX.t / 9) * 0.06 : 1, R = Math.min(30, VX.h * 0.17) * pouls;
-  const halo = g.createRadialGradient(cx, cy, 4, cx, cy, R * 2.2);
-  halo.addColorStop(0, ETAT.enCours ? "rgba(255,152,45,.55)" : mode ? "rgba(51,131,139,.55)" : "rgba(51,131,139,.18)");
-  halo.addColorStop(1, "rgba(15,34,56,0)");
-  g.fillStyle = halo; g.beginPath(); g.arc(cx, cy, R * 2.2, 0, Math.PI * 2); g.fill();
-  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.fillStyle = mode ? "#33838B" : "#1E3A55"; g.fill();
+  } else VX.grains = [];
+  g.beginPath(); g.arc(w / 2, h - 5, 4.5, 0, Math.PI * 2); g.fillStyle = ETAT.enCours ? "#FF982D" : mode ? "#33838B" : "#AEB9C6"; g.fill();
 }
-function spirale(p, t) {
-  // la source descend vers le cœur en tournant (trois quarts de tour), dans l'ellipse du cadre
-  const cx = VX.w / 2, cy = VX.h / 2, nx = (p.x - cx) / cx, ny = (p.y - cy) / cy;
-  const r = Math.pow(1 - t, 1.15), a = t * Math.PI * 1.5;
-  return { x: cx + (nx * Math.cos(a) - ny * Math.sin(a)) * r * cx, y: cy + (nx * Math.sin(a) + ny * Math.cos(a)) * r * cy };
-}
-function vortexBoucle() { VX.t++; vortexDessiner(false); requestAnimationFrame(vortexBoucle); }
-if (window.ResizeObserver) new ResizeObserver(vortexPlacer).observe($("vortex")); else window.addEventListener("resize", vortexPlacer);
+function vortexBoucle() { if (mode || VX.grains.length) vortexDessiner(false); requestAnimationFrame(vortexBoucle); }
+if (window.ResizeObserver) new ResizeObserver(vortexPlacer).observe($("sources-zone")); else window.addEventListener("resize", vortexPlacer);
 vortexSources();
-if (VX.immobile) vortexDessiner(true); else requestAnimationFrame(vortexBoucle);
+if (!VX.immobile) requestAnimationFrame(vortexBoucle);
 
 /* ---------- écoute : reconnaissance vocale de Chrome ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
