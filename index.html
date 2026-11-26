@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>COMMENTE — FIDAL Notaires</title>
-<!-- COMMENTE v0.6 (26/11/2026 nuit, demande JFD : visuel entièrement retravaillé — scène sombre où les quatre silos alimentent en lumière le noyau des deux boutons ; volets clairs soignés : transcription en caractères d'acte, éléments en cartes avec extrait sur « papier ») ; v0.5 (26/11/2026 nuit, demande JFD : les sources en SILOS côte à côte, chacune reliée par un trait à la zone des boutons ; le vortex est retiré) ; v0.4.1 (26/11/2026 nuit : la page ne dépasse plus de la fenêtre, le champ de saisie du bas n'est plus coupé) ; v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+<!-- COMMENTE v0.7 (26/11/2026 nuit, demandes JFD : bouton « Brancher la documentation » avec animation de branchement en réseau de neurones ; colonne du dossier en couleur ; en bas, deux zones franchement distinctes — la parole sur papier à gauche, l'analyse à droite) ; v0.6 (26/11/2026 nuit, demande JFD : visuel entièrement retravaillé — scène sombre où les quatre silos alimentent en lumière le noyau des deux boutons ; volets clairs soignés : transcription en caractères d'acte, éléments en cartes avec extrait sur « papier ») ; v0.5 (26/11/2026 nuit, demande JFD : les sources en SILOS côte à côte, chacune reliée par un trait à la zone des boutons ; le vortex est retiré) ; v0.4.1 (26/11/2026 nuit : la page ne dépasse plus de la fenêtre, le champ de saisie du bas n'est plus coupé) ; v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
      Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
      sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
      suivre la visio sur haut-parleurs, pas au casque. -->
@@ -312,6 +312,87 @@ body{background:#EEF1F5}
 #grille.replie #gauche{background:#fff}
 @media (max-width:1000px){#centre-haut{padding:14px 12px 10px}#sources-zone{margin-bottom:40px}}
 @media (max-width:620px){.silo{padding:9px 10px}.silo .ico{width:30px;height:30px;font-size:15px}.silo b{font-size:14px}#commandes{gap:26px}}
+/* ==================== v0.7 — branchement, dossier en couleur, deux zones distinctes ==================== */
+/* le branchement de la documentation */
+#sources-zone{margin:0 auto}
+#liaison{position:relative;height:88px;display:flex;align-items:center;justify-content:center}
+.brancher{position:relative;padding:10px 24px 10px 44px;border-radius:24px;border:1px solid rgba(109,213,220,.55);background:rgba(10,23,39,.82);color:#E9EFF6;
+  font-family:var(--serif);font-size:15.5px;letter-spacing:.4px;box-shadow:0 0 0 6px rgba(109,213,220,.06),0 0 26px rgba(109,213,220,.28);transition:opacity .45s,transform .45s,box-shadow .2s,border-color .2s}
+.brancher::before{content:"";position:absolute;left:17px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;border:2px solid var(--cyan);box-shadow:0 0 10px var(--cyan);animation:appel 1.8s ease-in-out infinite}
+@keyframes appel{50%{transform:scale(.72);opacity:.55}}
+.brancher:hover{border-color:var(--cyan);box-shadow:0 0 0 8px rgba(109,213,220,.10),0 0 36px rgba(109,213,220,.5)}
+.brancher:focus-visible,.puce-doc:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.brancher.fait{opacity:0;transform:scale(.6);pointer-events:none}
+.puce-doc{position:absolute;z-index:3;right:20px;bottom:12px;padding:4px 12px 4px 26px;border-radius:14px;border:1px solid rgba(79,227,166,.35);background:rgba(79,227,166,.08);color:#9CEBC8;font-size:12px}
+.puce-doc::before{content:"";position:absolute;left:10px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:#4FE3A6;box-shadow:0 0 8px #4FE3A6}
+.puce-doc:hover{border-color:#4FE3A6}
+.puce-doc[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.brancher::before{animation:none}}
+.silo.branchee{border-color:rgba(109,213,220,.30);background:rgba(109,213,220,.05)}
+.silo.branchee .ico{color:#9FDDE2;border-color:rgba(109,213,220,.32)}
+.silo.branchee b{color:#F1F5FA}
+.silo.branchee .led{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.silo.branchee::after{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+/* la colonne du dossier, en couleur */
+#gauche,#grille.replie #gauche{background:linear-gradient(180deg,#123A52 0%,#0F2A44 42%,#0C1D31 100%);color:#DCE5EF;border-right:1px solid rgba(109,213,220,.18)}
+.g-tete h2{color:#fff}
+.g-tete h2 small{color:var(--cyan)}
+.plier{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.22);color:#fff}
+.plier:hover{border-color:var(--cyan);color:var(--cyan)}
+#grille.replie .g-tete h2{color:#9FB6CC}
+.etiq{color:#8FC4CC}
+.scn{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.20);color:#DCE5EF}
+.scn:hover{border-color:var(--cyan)}
+.scn[aria-checked="true"]{background:var(--cyan);border-color:var(--cyan);color:#0A1727;font-weight:600}
+#contexte{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#C9D5E2}
+#contexte::placeholder{color:#7E94AC}
+#contexte:focus{outline:2px solid rgba(109,213,220,.4);border-color:var(--cyan)}
+#gauche #depot{border-color:rgba(109,213,220,.5);background:rgba(109,213,220,.07);color:#B6C8DA}
+#depot::before{background:var(--cyan);opacity:1}
+#depot label{color:var(--cyan)}
+#depot.survol{border-color:var(--cyan);background:rgba(109,213,220,.18)}
+#gauche .vide{color:#9FB6CC}
+.sdos-t{color:#fff}
+.sdos-t::before{background:var(--cyan)}
+.sdos-t small{background:rgba(255,255,255,.12);color:#DCE5EF}
+.piece{border-left-color:rgba(109,213,220,.28)}
+.piece .nom{color:#F1F5FA}
+.piece .orig,.piece .taille{color:#8EA3BA}
+.piece .pb{color:#FFB56B}
+.piece button{color:#8EA3BA}.piece button:hover{color:#fff}
+.piece select{color:#8EA3BA}.piece select:hover{color:var(--cyan)}
+.piece select option{color:#0F2238;background:#fff}
+#gauche .aide{color:#8EA3BA}#gauche .aide b{color:#C9D5E2}
+#g-corps{scrollbar-color:rgba(109,213,220,.35) transparent}
+/* deux zones franchement distinctes : la parole sur papier, l'analyse */
+#duo{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);background:#E3E9F1}
+#duo h2 .zone{margin-left:auto;font-family:'Segoe UI',system-ui,sans-serif;font-size:11.5px;letter-spacing:.4px;padding:2px 10px;border-radius:10px}
+/* la parole : une page d'acte, avec sa marge */
+#duo>section:first-child{position:relative;background:var(--papier);border-right:0;box-shadow:8px 0 22px -10px rgba(15,34,56,.45);z-index:1}
+#duo>section:first-child::before{content:"";position:absolute;top:0;bottom:0;left:91px;width:1px;background:rgba(160,16,64,.30);pointer-events:none}
+#duo>section:first-child::after{content:"";position:absolute;top:0;bottom:0;left:94px;width:1px;background:rgba(160,16,64,.14);pointer-events:none}
+#duo>section:first-child h2{background:var(--papier);border-bottom:1px solid #EFE7D2;padding-bottom:12px;position:relative;z-index:1}
+#duo>section:first-child h2 small{background:#F3ECD8;color:#7A6A45}
+#duo>section:first-child h2 .zone{background:#F3ECD8;color:#7A6A45}
+#duo>section:first-child .defile{padding-top:6px}
+.phrase{border-bottom-color:#F1EAD8;grid-template-columns:66px minmax(0,1fr);gap:0 16px}
+.phrase .h{color:#A89A78}
+#fil .phrase:last-child{border-left-color:var(--carmin);background:linear-gradient(90deg,rgba(160,16,64,.06),rgba(160,16,64,0) 55%)}
+#provisoire{padding-left:82px;color:#A89A78}
+#duo>section:first-child .vide{padding-left:82px;color:#8A7C5C}
+#saisie{background:#FBF7EA;border-top-color:#EFE7D2;position:relative;z-index:1}
+/* l'analyse : la suite de la scène */
+#duo>section:last-child{background:#E3E9F1}
+#duo>section:last-child h2{background:#13283F;color:#fff;padding-bottom:12px}
+#duo>section:last-child h2 small{background:rgba(109,213,220,.16);color:var(--cyan)}
+#duo>section:last-child h2 .zone{background:rgba(109,213,220,.16);color:var(--cyan)}
+#filtres{background:#13283F;padding:0 22px 14px}
+.filtre{background:transparent;border-color:rgba(255,255,255,.22);color:#B6C8DA}
+.filtre[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:#0A1727;font-weight:600}
+#attente{padding-top:10px}
+#duo>section:last-child .defile{padding-top:4px}
+#duo>section:last-child .vide{color:#5F7690}
+@media (max-width:1000px){#duo>section:first-child{box-shadow:none}#liaison{height:76px}.puce-doc{position:static;display:block;margin:8px auto 0}}
 </style>
 </head>
 <body>
@@ -345,6 +426,8 @@ body{background:#EEF1F5}
     <div id="centre-haut">
       <canvas id="vortex-c" aria-hidden="true"></canvas>
       <div id="sources-zone" aria-hidden="true"><div id="sources"></div></div>
+      <div id="liaison"><button class="brancher" id="b-brancher" type="button">Brancher la documentation</button></div>
+      <button class="puce-doc" id="b-debrancher" type="button" hidden title="Débrancher la documentation">Documentation branchée</button>
       <div id="commandes">
         <button class="rond" id="b-audio" type="button" aria-pressed="false">
           <span class="disque"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></span>
@@ -359,7 +442,7 @@ body{background:#EEF1F5}
     </div>
     <div id="duo">
       <section>
-        <h2>Ce qui se dit <small id="nb-phrases"></small></h2>
+        <h2>Ce qui se dit <small id="nb-phrases"></small><span class="zone">la parole</span></h2>
         <div class="defile" id="fil-zone">
           <div id="fil"><p class="vide">Appuyez sur « Audio » ou sur « Audio + vidéo ». Chrome demandera l'accès au micro, et au partage d'écran pour la vidéo.</p></div>
           <div id="provisoire"></div>
@@ -370,7 +453,7 @@ body{background:#EEF1F5}
         </form>
       </section>
       <section>
-        <h2>Ce qui le confirme ou le conteste <small id="nb-com"></small></h2>
+        <h2>Ce qui le confirme ou le conteste <small id="nb-com"></small><span class="zone">l'analyse</span></h2>
         <div id="filtres" role="group" aria-label="Filtrer les éléments"></div>
         <div id="attente"></div>
         <div class="defile" id="coms"><p class="vide">En regard de ce qui se dit, vous verrez ici les extraits du projet, les éléments du dossier, les articles de loi et les points de vigilance qui le confirment ou le contestent. Les plus récents sont en haut.</p></div>
@@ -380,7 +463,7 @@ body{background:#EEF1F5}
 </main>
 
 <script>
-/* ==================== COMMENTE v0.6 — 26/11/2026 ==================== */
+/* ==================== COMMENTE v0.7 — 26/11/2026 ==================== */
 /* ---------- appels au serveur sous la garde de CARNET (lot 5 de CARNET, 26/11/2026) ----------
    Les fonctions du serveur de COMMENTE vérifient désormais la personne : chaque appel porte sa connexion
    (en-tête X-Carnet-Jeton, celle que le voile garde sur le poste). L'appel attend que le voile soit levé ;
@@ -648,9 +731,11 @@ function majMesure() {
   $("mesure").textContent = "Délai moyen " + moy + " s (dernier " + t[t.length - 1] + " s)";
 }
 
-/* ---------- la scène (visuel) : quatre silos côte à côte, chacun relié par un trait de lumière au noyau des deux boutons.
-   À l'écoute, des grains de lumière descendent les traits ; ils accélèrent et passent à l'orange pendant une analyse.
-   Seul le dossier est réellement lu ; MONETA, les articles et la comptabilité ne sont pas encore branchés. ---------- */
+/* ---------- la scène (visuel) : quatre silos de documentation, à BRANCHER sur le noyau des deux boutons.
+   Le bouton « Brancher la documentation » fait pousser un réseau de neurones des silos vers le noyau : axones, ramifications,
+   synapses qui s'allument ; une fois branché, des influx y circulent (plus vifs à l'écoute, orange pendant une analyse).
+   Lancer l'écoute branche d'office : les pièces du dossier ne sont jamais ignorées.
+   Seul le dossier est réellement lu ; MONETA, les articles et la comptabilité ne sont pas encore branchés pour de bon. ---------- */
 const ICO = {
   dossier: '<svg viewBox="0 0 24 24"><path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9a1.5 1.5 0 0 0-1.5-1.5H12L10 5H4.5A1.5 1.5 0 0 0 3 6.5z"/></svg>',
   moneta: '§',
@@ -663,9 +748,11 @@ const SOURCES = [
   { id: "articles", nom: "Articles", detail: () => "par thème" },
   { id: "compta", nom: "Comptabilité", detail: () => "module comptable" }
 ];
-const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, dep: [], noyau: null, grains: [], t: 0, immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
+const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, dep: [], noyau: null, fils: [], noeuds: [], grains: [], t: 0, branche: false, pousse: 0, depart: 0,
+  immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
+const DUREE_POUSSE = 2100;   // millisecondes
 function vortexSources() {
-  $("sources").innerHTML = SOURCES.map((s) => '<div class="silo' + (mode ? " vive" : "") + '" data-id="' + s.id + '"><span class="ico">' + ICO[s.id] + '</span><span><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></span><i class="led"></i></div>').join("");
+  $("sources").innerHTML = SOURCES.map((s) => '<div class="silo' + (VX.branche ? " branchee" : "") + (mode ? " vive" : "") + '" data-id="' + s.id + '"><span class="ico">' + ICO[s.id] + '</span><span><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></span><i class="led"></i></div>').join("");
   vortexPlacer();
 }
 function vortexPlacer() {
@@ -678,50 +765,111 @@ function vortexPlacer() {
     const cx = (d[0].left + d[0].width / 2 + d[1].left + d[1].width / 2) / 2 - b.left, cy = d[0].top + d[0].height / 2 - b.top;
     VX.noyau = { x: cx, y: cy, rx: (d[1].left - d[0].left) / 2 + d[0].width / 2 + 26, ry: d[0].height / 2 + 20 };
   }
-  vortexDessiner(true);
+  reseau(); vortexDessiner(true);
 }
 function trait(i, t) {
-  // du pied du silo jusqu'au sommet du noyau
-  // chaque trait arrive à sa place sur l'arche, du même côté que son silo
+  // l'axone : du pied du silo jusqu'à sa place sur l'arche, du même côté que son silo
   const a = VX.dep[i], n = VX.noyau, x3 = n.x + Math.max(-0.82, Math.min(0.82, (a.x - n.x) / (VX.w * 0.62))) * n.rx;
   const y3 = n.y - n.ry * Math.sqrt(1 - Math.pow((x3 - n.x) / n.rx, 2)), u = 1 - t, dy = y3 - a.y;
   const y1 = a.y + dy * 0.85, y2 = a.y + dy * 0.1;
   return { x: u * u * u * a.x + 3 * u * u * t * a.x + 3 * u * t * t * x3 + t * t * t * x3, y: u * u * u * a.y + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y3 };
 }
+function hasard(g) { return () => { g |= 0; g = g + 0x6D2B79F5 | 0; let t = Math.imul(g ^ g >>> 15, 1 | g); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function courbe(p, q, bombe, pas) {
+  const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2 + bombe, pts = [];
+  for (let k = 0; k <= pas; k++) { const t = k / pas, u = 1 - t; pts.push({ x: u * u * p.x + 2 * u * t * mx + t * t * q.x, y: u * u * p.y + 2 * u * t * my + t * t * q.y }); }
+  return pts;
+}
+function reseau() {
+  // le réseau est le même à chaque affichage (tirage à graine fixe) : axones, ramifications et synapses entre voisins
+  VX.fils = []; VX.noeuds = []; const n = VX.noyau; if (!n || !VX.dep.length) return;
+  const al = hasard(20261126), haut = Math.min(...VX.dep.map((a) => a.y)), bas = n.y - n.ry - 4, borne = (y) => Math.max(haut + 6, Math.min(bas, y));
+  VX.dep.forEach((a, i) => {
+    const axe = []; for (let k = 0; k <= 44; k++) axe.push(trait(i, k / 44));
+    const t0 = 0.04 + i * 0.05;
+    VX.fils.push({ pts: axe, t0, duree: 0.6, axe: true });
+    [0.2, 0.38, 0.56, 0.74].forEach((t, j) => {
+      const p = trait(i, t), sens = (j % 2 ? 1 : -1) * (a.x < n.x ? 1 : -1);
+      const q = { x: p.x + sens * (22 + al() * 52), y: borne(p.y + (al() - 0.3) * 30) };
+      const tb = t0 + t * 0.6;
+      VX.fils.push({ pts: courbe(p, q, (al() - 0.5) * 16, 12), t0: tb, duree: 0.2 });
+      VX.noeuds.push({ x: p.x, y: p.y, t: tb, r: 1.6, ph: al() * 6 });
+      VX.noeuds.push({ x: q.x, y: q.y, t: tb + 0.2, r: 2 + al() * 1.6, ph: al() * 6 });
+      if (al() < 0.7) {
+        const q2 = { x: q.x + sens * (12 + al() * 30), y: borne(q.y + 8 + al() * 16) };
+        VX.fils.push({ pts: courbe(q, q2, (al() - 0.5) * 10, 8), t0: tb + 0.2, duree: 0.14 });
+        VX.noeuds.push({ x: q2.x, y: q2.y, t: tb + 0.34, r: 1.4 + al() * 1.2, ph: al() * 6 });
+      }
+    });
+    if (i < VX.dep.length - 1) [0.5, 0.82].forEach((t) => {   // synapses entre axones voisins
+      const p = trait(i, t), q = trait(i + 1, Math.min(0.97, t + 0.06));
+      VX.fils.push({ pts: courbe(p, q, (al() - 0.5) * 22, 16), t0: 0.5 + al() * 0.2, duree: 0.22 });
+    });
+  });
+}
 function vortexDessiner(fixe) {
   const g = VX.c.getContext("2d"), w = VX.w, h = VX.h, n = VX.noyau; if (!n || !VX.dep.length) return;
   g.setTransform(VX.dpr, 0, 0, VX.dpr, 0, 0);
-  if (fixe || !mode) g.clearRect(0, 0, w, h);
-  else { g.globalCompositeOperation = "destination-out"; g.fillStyle = "rgba(0,0,0,.16)"; g.fillRect(0, 0, w, h); g.globalCompositeOperation = "source-over"; }
-  const chaud = ETAT.enCours, teinte = chaud ? "255,152,45" : "109,213,220";
-  // traits
-  VX.dep.forEach((a, i) => {
-    g.beginPath();
-    for (let k = 0; k <= 36; k++) { const p = trait(i, k / 36); k ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y); }
-    g.strokeStyle = mode ? "rgba(" + teinte + ",.34)" : "rgba(142,163,186,.20)"; g.lineWidth = mode ? 1.4 : 1; g.stroke();
-  });
+  if (VX.branche && VX.pousse < 1) VX.pousse = VX.immobile ? 1 : Math.min(1, (performance.now() - VX.depart) / DUREE_POUSSE);
+  const anime = VX.branche && !fixe && !VX.immobile;
+  if (!anime) g.clearRect(0, 0, w, h);
+  else { g.globalCompositeOperation = "destination-out"; g.fillStyle = "rgba(0,0,0,.2)"; g.fillRect(0, 0, w, h); g.globalCompositeOperation = "source-over"; }
+  const chaud = ETAT.enCours, teinte = chaud ? "255,152,45" : "109,213,220", force = mode ? 1 : 0.62;
+  if (!VX.branche) {
+    // non branché : trois points en attente sous chaque silo, arche éteinte
+    VX.dep.forEach((a) => { for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(a.x, a.y + 5 + k * 7, 1.3, 0, Math.PI * 2); g.fillStyle = "rgba(142,163,186," + (0.42 - k * 0.12) + ")"; g.fill(); } });
+  } else {
+    VX.fils.forEach((f) => {
+      const part = Math.max(0, Math.min(1, (VX.pousse - f.t0) / f.duree)); if (!part) return;
+      const dernier = Math.max(1, Math.round(part * (f.pts.length - 1)));
+      g.beginPath(); g.moveTo(f.pts[0].x, f.pts[0].y);
+      for (let k = 1; k <= dernier; k++) g.lineTo(f.pts[k].x, f.pts[k].y);
+      g.strokeStyle = "rgba(" + teinte + "," + ((f.axe ? 0.46 : 0.26) * force).toFixed(2) + ")"; g.lineWidth = f.axe ? 1.5 : 1; g.stroke();
+      if (part < 1 && anime) {   // la pointe qui pousse
+        const p = f.pts[dernier]; g.shadowColor = "rgba(109,213,220,1)"; g.shadowBlur = 12;
+        g.beginPath(); g.arc(p.x, p.y, f.axe ? 2.6 : 1.9, 0, Math.PI * 2); g.fillStyle = "#EAFBFC"; g.fill(); g.shadowBlur = 0;
+      }
+    });
+    VX.noeuds.forEach((nd) => {
+      if (VX.pousse < nd.t) return;
+      const eclat = anime ? 0.55 + 0.4 * Math.sin(VX.t / 18 + nd.ph) : 0.7, naissance = anime ? Math.max(0, 1 - (VX.pousse - nd.t) * 9) : 0;
+      g.shadowColor = "rgba(" + teinte + ",1)"; g.shadowBlur = 8 + naissance * 14;
+      g.beginPath(); g.arc(nd.x, nd.y, nd.r + naissance * 2.2, 0, Math.PI * 2); g.fillStyle = "rgba(" + teinte + "," + (eclat * force + naissance * 0.4).toFixed(2) + ")"; g.fill();
+    });
+    g.shadowBlur = 0;
+    if (anime && VX.pousse >= 1) {   // influx
+      const cadence = chaud ? 0.5 : mode ? 0.22 : 0.07;
+      if (Math.random() < cadence) { const f = VX.fils[Math.floor(Math.random() * VX.fils.length)]; VX.grains.push({ f, t: 0, v: (f.axe ? 0.011 : 0.03) * (0.8 + Math.random() * 0.6) }); }
+      if (Math.random() < cadence) { const axes = VX.fils.filter((f) => f.axe); VX.grains.push({ f: axes[Math.floor(Math.random() * axes.length)], t: 0, v: 0.011 * (0.8 + Math.random() * 0.6) }); }
+      VX.grains = VX.grains.filter((q) => q.t < 1);
+      g.shadowColor = "rgba(" + teinte + ",1)"; g.shadowBlur = 10;
+      VX.grains.forEach((q) => {
+        q.t += q.v * (chaud ? 1.9 : mode ? 1.25 : 0.8);
+        const pos = Math.min(1, q.t) * (q.f.pts.length - 1), k = Math.floor(pos), r = pos - k, a = q.f.pts[k], b2 = q.f.pts[Math.min(q.f.pts.length - 1, k + 1)];
+        g.beginPath(); g.arc(a.x + (b2.x - a.x) * r, a.y + (b2.y - a.y) * r, q.f.axe ? 2.2 : 1.5, 0, Math.PI * 2); g.fillStyle = chaud ? "#FFC27A" : "#D9F8FA"; g.fill();
+      });
+      g.shadowBlur = 0;
+    } else if (!anime) VX.grains = [];
+  }
   // noyau : une arche de lumière au-dessus des deux boutons (elle s'efface vers les côtés, sans toucher les libellés)
-  const pouls = mode && !fixe ? 0.62 + Math.sin(VX.t / 14) * 0.2 : 0.3;
-  const voile = g.createLinearGradient(n.x - n.rx, 0, n.x + n.rx, 0), c0 = mode ? teinte : "142,163,186", a1 = (mode ? pouls : 0.26).toFixed(2);
+  const allume = VX.branche && VX.pousse >= 0.7, pouls = allume ? (anime ? 0.5 + Math.sin(VX.t / 14) * 0.18 : 0.5) * (mode ? 1.25 : 0.8) : 0.24;
+  const voile = g.createLinearGradient(n.x - n.rx, 0, n.x + n.rx, 0), c0 = allume ? teinte : "142,163,186", a1 = Math.min(0.95, pouls).toFixed(2);
   voile.addColorStop(0, "rgba(" + c0 + ",0)"); voile.addColorStop(0.22, "rgba(" + c0 + "," + a1 + ")"); voile.addColorStop(0.78, "rgba(" + c0 + "," + a1 + ")"); voile.addColorStop(1, "rgba(" + c0 + ",0)");
   g.beginPath(); g.ellipse(n.x, n.y, n.rx, n.ry, 0, Math.PI, Math.PI * 2);
   g.strokeStyle = voile; g.lineWidth = 1.3;
-  if (mode) { g.shadowColor = "rgba(" + teinte + ",.9)"; g.shadowBlur = 14; }
+  if (allume) { g.shadowColor = "rgba(" + teinte + ",.9)"; g.shadowBlur = 14; }
   g.stroke(); g.shadowBlur = 0;
-  // grains de lumière
-  if (!fixe && mode) {
-    VX.dep.forEach((a, i) => { if (Math.random() < (chaud ? 0.20 : 0.07)) VX.grains.push({ i, t: 0, v: 0.009 + Math.random() * 0.008 }); });
-    VX.grains = VX.grains.filter((q) => q.t < 1 && q.i < VX.dep.length);
-    g.shadowColor = "rgba(" + teinte + ",1)"; g.shadowBlur = 10;
-    VX.grains.forEach((q) => {
-      q.t += q.v * (chaud ? 1.9 : 1);
-      const p = trait(q.i, Math.min(q.t, 1));
-      g.beginPath(); g.arc(p.x, p.y, 2.1, 0, Math.PI * 2); g.fillStyle = chaud ? "#FFC27A" : "#C9F4F7"; g.fill();
-    });
-    g.shadowBlur = 0;
-  } else VX.grains = [];
 }
-function vortexBoucle() { VX.t++; if (mode || VX.grains.length) vortexDessiner(false); requestAnimationFrame(vortexBoucle); }
+function brancher(oui) {
+  if (VX.branche === oui) return;
+  VX.branche = oui; VX.pousse = 0; VX.depart = performance.now(); VX.grains = [];
+  $("b-brancher").classList.toggle("fait", oui); $("b-brancher").setAttribute("aria-hidden", String(oui)); $("b-brancher").tabIndex = oui ? -1 : 0;
+  $("b-debrancher").hidden = !oui;
+  vortexSources();
+}
+$("b-brancher").addEventListener("click", () => brancher(true));
+$("b-debrancher").addEventListener("click", () => { if (mode) { alerte("Arrêtez d'abord l'écoute pour débrancher la documentation."); return; } brancher(false); });
+function vortexBoucle() { VX.t++; if (VX.branche) vortexDessiner(false); requestAnimationFrame(vortexBoucle); }
 if (window.ResizeObserver) new ResizeObserver(vortexPlacer).observe($("centre-haut")); else window.addEventListener("resize", vortexPlacer);
 vortexSources();
 if (!VX.immobile) requestAnimationFrame(vortexBoucle);
@@ -810,7 +958,7 @@ async function demarrer(m) {
     }
     ecranDemarrer(fluxEcran);
   }
-  mode = m; ecoute = true; boutons(); vortexSources();
+  mode = m; ecoute = true; boutons(); if (!VX.branche) brancher(true); else vortexSources();
   local = await essayerLocal();
   if (!ecoute) return;
   if (!ETAT.phrases.length) $("fil").innerHTML = "";
@@ -981,7 +1129,7 @@ $("b-cr").addEventListener("click", () => {
 });
 window.addEventListener("beforeunload", (ev) => { if (ETAT.phrases.length || ETAT.lectures.length) { ev.preventDefault(); ev.returnValue = ""; } });
 try { if (localStorage.getItem("commente.replie")) plier(true); } catch (e) {}
-window.COMMENTE_ESSAI = { ETAT, fusionner, ressemblance, afficherCom, envoyer, classer, DOSSIERS, SCN, get mode() { return mode; } };   // pour les essais
+window.COMMENTE_ESSAI = { ETAT, VX, fusionner, ressemblance, afficherCom, envoyer, classer, DOSSIERS, SCN, get mode() { return mode; } };   // pour les essais
 })();
 </script>
 
