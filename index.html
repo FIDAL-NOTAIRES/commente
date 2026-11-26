@@ -4,12 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>COMMENTE — FIDAL Notaires</title>
-<!-- COMMENTE v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+<!-- COMMENTE v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
      Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
      sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
      suivre la visio sur haut-parleurs, pas au casque. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<!-- v0.3 : lecture du texte affiché à l'écran, sur le poste (aucune image n'est envoyée) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js"></script>
 <style>
 :root{--nuit:#0F2238;--canard:#33838B;--orange:#FF982D;--carmin:#A01040;--cyan:#6DD5DC;--vert:#1F7A4D;--ocre:#7A5A00;--orange-t:#B25F00;--fond:#F4F6F8;--trait:#D9DEE5;--gris:#657D96}
 *{box-sizing:border-box}
@@ -33,7 +35,7 @@ button{font:inherit;cursor:pointer}
 .btn.clair{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;font-weight:400}
 .btn:focus-visible,.lien:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 /* trois colonnes */
-#grille{display:grid;grid-template-columns:300px minmax(0,1fr) minmax(0,1.25fr);height:calc(100% - 52px)}
+#grille{display:grid;grid-template-columns:290px minmax(0,1.15fr) minmax(0,1fr);height:calc(100% - 52px)}
 .col{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--trait)}
 .col:last-child{border-right:0}
 .col h2{margin:0;padding:12px 16px 8px;font-size:15px;font-weight:600;display:flex;align-items:baseline;gap:8px}
@@ -87,6 +89,36 @@ button{font:inherit;cursor:pointer}
 .acces-carte button[disabled]{opacity:.5;cursor:wait}
 .acces-carte a{color:#33838B;font-size:13px}
 #acces-bandeau{position:fixed;left:12px;bottom:12px;z-index:9000;padding:6px 10px;border-left:4px solid #FF982D;background:#FFF4E8;font:12.5px 'Segoe UI',sans-serif;color:#0F2238;border-radius:3px}
+/* ==================== v0.3 — colonne centrale : sources, boutons ronds, transcription ==================== */
+#centre-haut{padding:12px 16px 0}
+#vortex{position:relative;height:210px;border-radius:6px;background:var(--nuit);overflow:hidden}
+#vortex canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vx-src{position:absolute;transform:translate(-50%,-50%);text-align:center;color:#8EA3BA;font-size:12px;line-height:1.25;white-space:nowrap;transition:color .4s,opacity .4s;pointer-events:none}
+.vx-src b{display:block;font-size:13px;font-weight:600;letter-spacing:.3px}
+.vx-src.vive{color:#fff}.vx-src.vive small{color:var(--cyan)}
+.vx-src.eteinte{opacity:.35}
+.vx-src small{font-size:11.5px}
+#coeur{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;font-size:11px;letter-spacing:1.5px;font-weight:600;pointer-events:none}
+#commandes{display:flex;justify-content:center;gap:34px;padding:16px 0 6px}
+.rond{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:0;padding:0;color:var(--nuit)}
+.rond .disque{position:relative;width:84px;height:84px;border-radius:50%;background:var(--canard);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(15,34,56,.25);transition:background .2s,transform .12s}
+.rond:hover .disque{background:#2B7279}
+.rond:active .disque{transform:scale(.96)}
+.rond svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rond .lib{font-size:13.5px;font-weight:600}
+.rond .lib small{display:block;font-weight:400;color:var(--gris);font-size:11.5px;text-align:center}
+.rond.actif .disque{background:var(--carmin)}
+.rond.actif .disque::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid var(--carmin);opacity:.5;animation:onde 1.6s ease-out infinite}
+@keyframes onde{from{transform:scale(.92);opacity:.6}to{transform:scale(1.18);opacity:0}}
+.rond:focus-visible{outline:none}.rond:focus-visible .disque{outline:3px solid var(--cyan);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.rond.actif .disque::after{animation:none}}
+#ecran-etat{margin:4px 0 0;font-size:12.5px;color:var(--gris);text-align:center;min-height:1.4em}
+#ecran-etat details{display:inline}
+#ecran-etat summary{display:inline;cursor:pointer;color:var(--canard);text-decoration:underline}
+#ecran-texte{margin:8px 0 0;max-height:160px;overflow:auto;text-align:left;white-space:pre-wrap;font-size:12px;color:#3D5168;background:#fff;border:1px solid var(--trait);border-radius:2px;padding:8px}
+.col h2.fil-titre{padding-top:8px}
+.com .repere{color:var(--nuit);font-weight:600}
+.phrase.page{color:var(--gris);font-style:italic}
 </style>
 </head>
 <body>
@@ -98,7 +130,6 @@ button{font:inherit;cursor:pointer}
   <span class="espace"></span>
   <span id="mesure"></span>
   <button class="btn clair" id="b-cr" type="button">Enregistrer le compte rendu</button>
-  <button class="btn" id="b-ecoute" type="button">Écouter</button>
 </header>
 <div id="alerte" role="alert"></div>
 <main id="grille">
@@ -107,17 +138,32 @@ button{font:inherit;cursor:pointer}
     <div id="depot">Déposez ici les pièces<br>(PDF, Word, texte) ou <label for="fichiers">choisissez-les</label>
       <input id="fichiers" type="file" multiple accept=".pdf,.docx,.txt,.md" class="cache"></div>
     <div class="defile">
-      <div id="pieces"><p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux.</p></div>
+      <div id="pieces"><p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux. Déposez le projet d'acte reçu : en mode vidéo, la page affichée lui est comparée.</p></div>
       <label class="etiq" for="contexte">Contexte de la réunion</label>
       <textarea id="contexte" placeholder="Ex. : négociation de l'offre du lot 1, 72 rue Boissière ; j'interviens pour les acquéreurs ; le confrère représente le vendeur."></textarea>
-      <p class="aide">Suivez la visio sur les haut-parleurs du poste, pas au casque : seul le micro est écouté.
-        Prévenez les participants que la réunion est transcrite.</p>
+      <p class="aide"><b>Audio</b> : seul le micro est écouté ; suivez la visio sur les haut-parleurs du poste.</p>
+      <p class="aide"><b>Audio + vidéo</b> : partagez l'écran entier en cochant « Partager l'audio du système » : COMMENTE entend alors aussi le son de Teams ou de Lifesize (casque possible) et lit l'acte qui défile. La fenêtre de la visio doit rester visible.</p>
+      <p class="aide">Prévenez les participants que la réunion est transcrite.</p>
     </div>
   </section>
   <section class="col">
-    <h2>Ce qui se dit <small id="nb-phrases"></small></h2>
+    <div id="centre-haut">
+      <div id="vortex" aria-hidden="true"><canvas id="vortex-c"></canvas><div id="sources"></div><span id="coeur">COMMENTE</span></div>
+      <div id="commandes">
+        <button class="rond" id="b-audio" type="button" aria-pressed="false">
+          <span class="disque"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></span>
+          <span class="lib">Audio<small>micro</small></span>
+        </button>
+        <button class="rond" id="b-video" type="button" aria-pressed="false">
+          <span class="disque"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M7 8.5h7M7 12h10"/></svg></span>
+          <span class="lib">Audio + vidéo<small>son et écran de la visio</small></span>
+        </button>
+      </div>
+      <div id="ecran-etat" aria-live="polite"></div>
+    </div>
+    <h2 class="fil-titre">Ce qui se dit <small id="nb-phrases"></small></h2>
     <div class="defile" id="fil-zone">
-      <div id="fil"><p class="vide">Appuyez sur « Écouter ». Chrome demandera une fois l'accès au micro.</p></div>
+      <div id="fil"><p class="vide">Appuyez sur « Audio » ou sur « Audio + vidéo ». Chrome demandera l'accès au micro, et au partage d'écran pour la vidéo.</p></div>
       <div id="provisoire"></div>
     </div>
     <form id="saisie" autocomplete="off">
@@ -128,12 +174,12 @@ button{font:inherit;cursor:pointer}
   <section class="col">
     <h2>Commentaires <small id="nb-com"></small></h2>
     <div id="attente"></div>
-    <div class="defile" id="coms"><p class="vide">Les commentaires apparaîtront ici, les plus récents en haut, avec le délai mesuré depuis la phrase.</p></div>
+    <div class="defile" id="coms"><p class="vide">Les commentaires apparaîtront ici, les plus récents en haut, avec le délai mesuré depuis la phrase ou la page.</p></div>
   </section>
 </main>
 
 <script>
-/* ==================== COMMENTE v0.2 — 26/11/2026 ==================== */
+/* ==================== COMMENTE v0.3 — 26/11/2026 ==================== */
 /* ---------- appels au serveur sous la garde de CARNET (lot 5 de CARNET, 26/11/2026) ----------
    Les fonctions du serveur de COMMENTE vérifient désormais la personne : chaque appel porte sa connexion
    (en-tête X-Carnet-Jeton, celle que le voile garde sur le poste). L'appel attend que le voile soit levé ;
@@ -175,8 +221,10 @@ async function accesAppel(url, options){
 const $ = (id) => document.getElementById(id);
 const echap = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const heure = (d) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-const ETAT = { pieces: [], phrases: [], coms: [], enAttente: [], enCours: false, delais: [] };
+const ETAT = { pieces: [], phrases: [], coms: [], enAttente: [], enCours: false, delais: [], ecran: null, ecranNouveau: false, lectures: [] };
 const MAX_TOTAL = 400000;
+const MAX_ECRAN = 20000;   // caractères de la page affichée envoyés à chaque analyse
+let mode = null;           // null (arrêt), "audio" ou "video"
 
 function alerte(t) { const a = $("alerte"); a.textContent = t || ""; a.classList.toggle("vue", !!t); }
 
@@ -217,7 +265,8 @@ async function ajouterPieces(liste) {
 }
 function afficherPieces() {
   const z = $("pieces");
-  if (!ETAT.pieces.length) { z.innerHTML = '<p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux.</p>'; $("pieces-total").textContent = ""; return; }
+  vortexSources();
+  if (!ETAT.pieces.length) { z.innerHTML = '<p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux. Déposez le projet d\'acte reçu : en mode vidéo, la page affichée lui est comparée.</p>'; $("pieces-total").textContent = ""; return; }
   const total = ETAT.pieces.reduce((s, p) => s + p.texte.length, 0);
   $("pieces-total").textContent = ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "");
   z.innerHTML = ETAT.pieces.map((p, i) => '<div class="piece"><div class="nom">' + echap(p.nom)
@@ -234,25 +283,31 @@ const dep = $("depot");
 dep.addEventListener("drop", (ev) => ajouterPieces([...ev.dataTransfer.files]));
 
 /* ---------- fil de la conversation ---------- */
+function ligneFil(html, classe) {
+  const z = $("fil"); if (!z.querySelector(".phrase")) z.innerHTML = "";
+  const d = document.createElement("div"); d.className = "phrase" + (classe ? " " + classe : "");
+  d.innerHTML = html; z.appendChild(d);
+  const zf = $("fil-zone"); zf.scrollTop = zf.scrollHeight;
+}
 function ajouterPhrase(texte, quand) {
   texte = String(texte || "").trim(); if (!texte) return;
   const p = { h: heure(quand || new Date()), t: texte, quand: (quand || new Date()).getTime() };
   ETAT.phrases.push(p); ETAT.enAttente.push(p);
-  const z = $("fil"); if (ETAT.phrases.length === 1) z.innerHTML = "";
-  const d = document.createElement("div"); d.className = "phrase";
-  d.innerHTML = '<span class="h">' + p.h + '</span>' + echap(p.t); z.appendChild(d);
+  ligneFil('<span class="h">' + p.h + '</span>' + echap(p.t));
   $("nb-phrases").textContent = ETAT.phrases.length + " phrase" + (ETAT.phrases.length > 1 ? "s" : "");
-  const zf = $("fil-zone"); zf.scrollTop = zf.scrollHeight;
   envoyer();
 }
 $("saisie").addEventListener("submit", (ev) => { ev.preventDefault(); const i = $("saisie-t"); ajouterPhrase(i.value); i.value = ""; });
 
-/* ---------- analyse : une demande à la fois, les phrases arrivées entre-temps partent ensemble ---------- */
+/* ---------- analyse : une demande à la fois ; les phrases arrivées entre-temps partent ensemble,
+   et en mode vidéo chaque demande porte aussi le texte de la page affichée à l'écran ---------- */
 async function envoyer() {
-  if (ETAT.enCours || !ETAT.enAttente.length) return;
+  if (ETAT.enCours || (!ETAT.enAttente.length && !ETAT.ecranNouveau)) return;
   if (ETAT.pieces.some((p) => p.pb === "Lecture…")) { $("attente").textContent = "Lecture des pièces en cours…"; setTimeout(envoyer, 600); return; }
   ETAT.enCours = true;
   const lot = ETAT.enAttente.splice(0);
+  const ecran = mode === "video" && ETAT.ecran ? { h: ETAT.ecran.h, texte: ETAT.ecran.texte.slice(0, MAX_ECRAN), nouvelle: ETAT.ecranNouveau, quand: ETAT.ecran.quand } : null;
+  ETAT.ecranNouveau = false;
   const avant = ETAT.phrases.slice(0, ETAT.phrases.length - lot.length).slice(-12);
   $("attente").textContent = "Analyse en cours…";
   try {
@@ -263,31 +318,35 @@ async function envoyer() {
         pieces: ETAT.pieces.filter((p) => p.texte).map((p) => ({ nom: p.nom, texte: p.texte })),
         deja: ETAT.coms.map((c) => c.texte),
         fil: avant.map((p) => ({ h: p.h, t: p.t })),
-        nouvelles: lot.map((p) => ({ h: p.h, t: p.t }))
+        nouvelles: lot.map((p) => ({ h: p.h, t: p.t })),
+        ecran: ecran ? { h: ecran.h, texte: ecran.texte, nouvelle: ecran.nouvelle } : null
       })
     });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.erreur || "erreur " + r.status);
-    const maintenant = Date.now(), delai = Math.round((maintenant - lot[lot.length - 1].quand) / 1000);
+    const depart = lot.length ? lot[lot.length - 1].quand : (ecran ? ecran.quand : Date.now());
+    const delai = Math.round((Date.now() - depart) / 1000);
     ETAT.delais.push(delai); majMesure();
     alerte("");
-    (d.commentaires || []).forEach((c) => afficherCom(c, lot, delai));
+    const sur = lot.length ? lot.map((p) => p.t).join(" ") : "page affichée à " + (ecran ? ecran.h : "");
+    (d.commentaires || []).forEach((c) => afficherCom(c, sur, delai));
   } catch (e) {
     alerte("Analyse impossible : " + (e.message || e) + ". Les phrases suivantes seront tout de même envoyées.");
   } finally {
     ETAT.enCours = false; $("attente").textContent = "";
-    if (ETAT.enAttente.length) envoyer();
+    if (ETAT.enAttente.length || ETAT.ecranNouveau) envoyer();
   }
 }
 const NATURES = { alerte: "Alerte", precision: "Précision", question: "Question à poser" };
-function afficherCom(c, lot, delai) {
-  ETAT.coms.push({ ...c, h: heure(new Date()), sur: lot.map((p) => p.t).join(" "), delai });
+function afficherCom(c, sur, delai) {
+  ETAT.coms.push({ ...c, h: heure(new Date()), sur, delai });
   const z = $("coms"); if (ETAT.coms.length === 1) z.innerHTML = "";
   const d = document.createElement("div"); d.className = "com " + c.nature;
-  d.innerHTML = '<div class="tete"><b>' + NATURES[c.nature] + '</b><span>' + heure(new Date()) + '</span><span>délai ' + delai + ' s</span></div>'
+  d.innerHTML = '<div class="tete"><b>' + NATURES[c.nature] + '</b>' + (c.repere ? '<span class="repere">' + echap(c.repere) + '</span>' : '')
+    + '<span>' + heure(new Date()) + '</span><span>délai ' + delai + ' s</span></div>'
     + '<div class="texte">' + echap(c.texte) + '</div>'
     + (c.piece || c.extrait ? '<div class="source">' + (c.piece ? echap(c.piece) : '') + (c.extrait ? (c.piece ? ' : ' : '') + '<q>' + echap(c.extrait) + '</q>' : '') + '</div>' : '')
-    + '<div class="sur">Sur : « ' + echap(lot.map((p) => p.t).join(" ").slice(0, 160)) + (lot.map((p) => p.t).join(" ").length > 160 ? "…" : "") + ' »</div>';
+    + '<div class="sur">Sur : « ' + echap(sur.slice(0, 160)) + (sur.length > 160 ? "…" : "") + ' »</div>';
   z.prepend(d);
   $("nb-com").textContent = ETAT.coms.length;
 }
@@ -297,10 +356,90 @@ function majMesure() {
   $("mesure").textContent = "Délai moyen " + moy + " s (dernier " + t[t.length - 1] + " s)";
 }
 
+/* ---------- vortex des sources (visuel) ---------- */
+const SOURCES = [
+  { id: "dossier", nom: "Dossier", detail: () => ETAT.pieces.length ? ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "") : "aucune pièce", ang: -150 },
+  { id: "moneta", nom: "MONETA", detail: () => "clauses", ang: -30 },
+  { id: "articles", nom: "Articles", detail: () => "par thème", ang: 150 },
+  { id: "compta", nom: "Comptabilité", detail: () => "module comptable", ang: 30 },
+  { id: "ecran", nom: "Écran", detail: () => "de la visio", ang: 90, video: true }
+];
+const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, grains: [], t: 0, immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
+function vortexSources() {
+  $("sources").innerHTML = SOURCES.map((s) => {
+    const allumee = mode && (!s.video || mode === "video");
+    return '<div class="vx-src ' + (allumee ? "vive" : (s.video && mode !== "video" ? "eteinte" : "")) + '" data-id="' + s.id + '"><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></div>';
+  }).join("");
+  vortexPlacer();
+}
+function position(s) {
+  const a = s.ang * Math.PI / 180;
+  return { x: VX.w / 2 + Math.cos(a) * VX.w * 0.36, y: VX.h / 2 + Math.sin(a) * VX.h * 0.36 };
+}
+function vortexPlacer() {
+  const b = $("vortex").getBoundingClientRect(); VX.w = b.width; VX.h = b.height; VX.dpr = window.devicePixelRatio || 1;
+  VX.c.width = Math.round(VX.w * VX.dpr); VX.c.height = Math.round(VX.h * VX.dpr);
+  $("sources").querySelectorAll(".vx-src").forEach((el) => {
+    const s = SOURCES.find((x) => x.id === el.dataset.id), p = position(s);
+    el.style.left = p.x + "px"; el.style.top = (p.y + (s.ang === 90 ? -8 : 0)) + "px";
+  });
+  if (VX.immobile) vortexDessiner(true);
+}
+function vortexDessiner(fixe) {
+  const g = VX.c.getContext("2d"), w = VX.w, h = VX.h, cx = w / 2, cy = h / 2;
+  g.setTransform(VX.dpr, 0, 0, VX.dpr, 0, 0);
+  g.fillStyle = fixe ? "#0F2238" : "rgba(15,34,56,.22)"; g.fillRect(0, 0, w, h);
+  const actives = SOURCES.filter((s) => mode && (!s.video || mode === "video"));
+  // bras de la spirale, de chaque source vers le cœur
+  SOURCES.forEach((s) => {
+    const p = position(s), on = actives.includes(s);
+    g.beginPath();
+    for (let k = 0; k <= 40; k++) {
+      const t = k / 40, pt = spirale(p, t);
+      k ? g.lineTo(pt.x, pt.y) : g.moveTo(pt.x, pt.y);
+    }
+    g.strokeStyle = on ? "rgba(109,213,220,.16)" : "rgba(142,163,186,.08)"; g.lineWidth = 1; g.stroke();
+  });
+  // grains qui descendent la spirale
+  if (!fixe) {
+    actives.forEach((s) => { if (Math.random() < (ETAT.enCours ? 0.5 : 0.28)) VX.grains.push({ s, t: 0, v: 0.006 + Math.random() * 0.006 }); });
+    VX.grains = VX.grains.filter((q) => q.t < 1);
+    VX.grains.forEach((q) => {
+      q.t += q.v * (ETAT.enCours ? 1.8 : 1);
+      const pt = spirale(position(q.s), q.t), r = 1.1 + (1 - q.t) * 1.4;
+      g.beginPath(); g.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+      g.fillStyle = q.s.video ? "rgba(255,152,45," + (0.35 + q.t * 0.6) + ")" : "rgba(109,213,220," + (0.3 + q.t * 0.6) + ")"; g.fill();
+    });
+  }
+  // cœur
+  const pouls = mode && !fixe ? 1 + Math.sin(VX.t / 9) * 0.06 : 1, R = 30 * pouls;
+  const halo = g.createRadialGradient(cx, cy, 4, cx, cy, R * 2.2);
+  halo.addColorStop(0, ETAT.enCours ? "rgba(255,152,45,.55)" : mode ? "rgba(51,131,139,.55)" : "rgba(51,131,139,.18)");
+  halo.addColorStop(1, "rgba(15,34,56,0)");
+  g.fillStyle = halo; g.beginPath(); g.arc(cx, cy, R * 2.2, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.fillStyle = mode ? "#33838B" : "#1E3A55"; g.fill();
+}
+function spirale(p, t) {
+  // la source descend vers le cœur en tournant (trois quarts de tour), dans l'ellipse du cadre
+  const cx = VX.w / 2, cy = VX.h / 2, nx = (p.x - cx) / cx, ny = (p.y - cy) / cy;
+  const r = Math.pow(1 - t, 1.15), a = t * Math.PI * 1.5;
+  return { x: cx + (nx * Math.cos(a) - ny * Math.sin(a)) * r * cx, y: cy + (nx * Math.sin(a) + ny * Math.cos(a)) * r * cy };
+}
+function vortexBoucle() { VX.t++; vortexDessiner(false); requestAnimationFrame(vortexBoucle); }
+if (window.ResizeObserver) new ResizeObserver(vortexPlacer).observe($("vortex")); else window.addEventListener("resize", vortexPlacer);
+vortexSources();
+if (VX.immobile) vortexDessiner(true); else requestAnimationFrame(vortexBoucle);
+
 /* ---------- écoute : reconnaissance vocale de Chrome ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, ecoute = false, local = false;
+let fluxEcran = null, fluxMicro = null, ctxSon = null, pisteSon = null;   // mode vidéo : son de la visio mêlé au micro
 function voyant(etat, texte) { const v = $("voyant"); v.className = etat; $("voyant-t").textContent = texte; }
+function texteVoyant() {
+  const ou = local ? "Transcription sur le poste" : "Transcription par les serveurs de Google";
+  if (mode !== "video") return ou + " (micro)";
+  return ou + (pisteSon ? " (son de la visio et micro)" : " (micro seul : son de la visio non partagé)");
+}
 async function essayerLocal() {
   // Chrome récent : transcription sur le poste même, sans envoi du son. Absente ou indisponible → serveurs de Google.
   if (!SR || typeof SR.available !== "function") return false;
@@ -329,9 +468,9 @@ function creer() {
   r.onerror = (ev) => {
     if (ev.error === "no-speech" || ev.error === "aborted") return;
     if (local && (ev.error === "language-not-supported" || ev.error === "service-not-allowed")) {
-      local = false; voyant("google ecoute", "Transcription par les serveurs de Google"); return;   // relance en mode serveur à la fin
+      local = false; voyant("google ecoute", texteVoyant()); return;   // relance en mode serveur à la fin
     }
-    if (ev.error === "not-allowed") { arreter(); alerte("Chrome refuse l'accès au micro : autorisez-le (icône à gauche de l'adresse), puis appuyez de nouveau sur « Écouter »."); return; }
+    if (ev.error === "not-allowed") { arreter(); alerte("Chrome refuse l'accès au micro : autorisez-le (icône à gauche de l'adresse), puis appuyez de nouveau sur un bouton."); return; }
     if (ev.error === "network") { alerte("La transcription ne répond pas (réseau). Nouvel essai automatique…"); return; }
     alerte("Incident d'écoute : " + ev.error + ". Nouvel essai automatique…");
   };
@@ -340,23 +479,194 @@ function creer() {
 }
 function demarrerRec() {
   rec = creer();
-  voyant((local ? "poste" : "google") + " ecoute", local ? "Transcription sur le poste" : "Transcription par les serveurs de Google");
+  voyant((local ? "poste" : "google") + " ecoute", texteVoyant());
+  if (pisteSon && pisteSon.readyState === "live") {
+    // Chrome 135 et suivants : la transcription porte sur la piste donnée (son de la visio + micro) ; sinon, micro seul
+    try { rec.start(pisteSon); return; }
+    catch (e) { pisteSon = null; voyant((local ? "poste" : "google") + " ecoute", texteVoyant()); rec = creer(); }
+  }
   try { rec.start(); } catch (e) { /* déjà lancée */ }
 }
-async function demarrer() {
+async function demarrer(m) {
   if (!SR) { alerte("Ce navigateur ne propose pas la reconnaissance vocale : ouvrez COMMENTE dans Chrome."); return; }
-  ecoute = true; $("b-ecoute").textContent = "Arrêter"; $("b-ecoute").classList.add("arret"); alerte("");
+  if (m === "video") {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) { alerte("Ce navigateur ne sait pas partager l'écran : ouvrez COMMENTE dans Chrome, sur le poste."); return; }
+    try {
+      fluxEcran = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: 4, max: 8 } }, audio: true,
+        systemAudio: "include", selfBrowserSurface: "exclude", surfaceSwitching: "include", monitorTypeSurfaces: "include"
+      });
+    } catch (e) { alerte("Partage annulé : choisissez l'écran entier (ou la fenêtre de la visio) pour lancer « Audio + vidéo »."); return; }
+    alerte("");
+    const piste = fluxEcran.getVideoTracks()[0];
+    if (piste) piste.addEventListener("ended", () => { if (mode === "video") { arreter(); alerte("Le partage d'écran a été arrêté : la lecture de l'écran est coupée."); } });
+    const sonVisio = fluxEcran.getAudioTracks()[0];
+    if (sonVisio) {
+      try { fluxMicro = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); } catch (e) { fluxMicro = null; }
+      try {
+        ctxSon = new AudioContext(); const dest = ctxSon.createMediaStreamDestination();
+        ctxSon.createMediaStreamSource(new MediaStream([sonVisio])).connect(dest);
+        if (fluxMicro) ctxSon.createMediaStreamSource(fluxMicro).connect(dest);
+        pisteSon = dest.stream.getAudioTracks()[0] || null;
+      } catch (e) { pisteSon = null; }
+    } else {
+      alerte("Son de la visio non partagé : seul le micro est écouté. Pour l'entendre, relancez en partageant l'écran entier avec « Partager l'audio du système ».");
+    }
+    ecranDemarrer(fluxEcran);
+  }
+  mode = m; ecoute = true; boutons(); vortexSources();
   local = await essayerLocal();
   if (!ecoute) return;
-  if (ETAT.phrases.length === 0) $("fil").innerHTML = "";
+  if (!ETAT.phrases.length) $("fil").innerHTML = "";
   demarrerRec();
 }
 function arreter() {
-  ecoute = false; $("b-ecoute").textContent = "Écouter"; $("b-ecoute").classList.remove("arret");
+  ecoute = false;
   try { rec && rec.stop(); } catch (e) {}
+  ecranArreter();
+  [fluxEcran, fluxMicro].forEach((f) => { if (f) f.getTracks().forEach((t) => t.stop()); });
+  fluxEcran = fluxMicro = null; pisteSon = null;
+  if (ctxSon) { try { ctxSon.close(); } catch (e) {} ctxSon = null; }
+  mode = null; boutons(); vortexSources();
   voyant("", "Écoute arrêtée");
 }
-$("b-ecoute").addEventListener("click", () => { ecoute ? arreter() : demarrer(); });
+function boutons() {
+  [["b-audio", "audio", "Audio", "micro"], ["b-video", "video", "Audio + vidéo", "son et écran de la visio"]].forEach(([id, m, nom, sous]) => {
+    const b = $(id), actif = mode === m;
+    b.classList.toggle("actif", actif); b.setAttribute("aria-pressed", String(actif));
+    b.querySelector(".lib").innerHTML = (actif ? "Arrêter" : nom) + "<small>" + (actif ? nom.toLowerCase() + " en cours" : sous) + "</small>";
+  });
+}
+function basculer(m) {
+  if (mode === m) { arreter(); return; }
+  if (mode) arreter();
+  demarrer(m);
+}
+$("b-audio").addEventListener("click", () => basculer("audio"));
+$("b-video").addEventListener("click", () => basculer("video"));
+
+/* ---------- mode vidéo : lecture de l'écran de la visio, sur le poste ----------
+   On regarde une petite vignette de l'écran deux fois par seconde. Quand la page a changé puis reste immobile,
+   on lit son texte par trois bandes qui se chevauchent, traitées en parallèle par trois lecteurs (aucune image ne sort du poste).
+   Le texte lu est joint à chaque analyse et comparé aux pièces (projet reçu) et à ce qui se dit. */
+const ECR = { video: null, minuterie: null, prec: null, lue: null, aLire: false, enCours: false, ord: null, pret: null };
+function ecranEtat(html) { $("ecran-etat").innerHTML = html || ""; }
+function ocrPret() {
+  if (ECR.pret) return ECR.pret;
+  if (!window.Tesseract) return Promise.reject(new Error("lecteur d'écran non chargé"));
+  ecranEtat("Préparation de la lecture d'écran (quelques secondes la première fois)…");
+  ECR.pret = (async () => {
+    const ord = Tesseract.createScheduler();
+    const lecteurs = await Promise.all([0, 1, 2].map(() => Tesseract.createWorker("fra")));
+    lecteurs.forEach((w) => ord.addWorker(w));
+    ECR.ord = ord; return ord;
+  })();
+  ECR.pret.catch(() => { ECR.pret = null; });
+  return ECR.pret;
+}
+function ecranDemarrer(flux) {
+  const v = document.createElement("video"); v.muted = true; v.playsInline = true; v.srcObject = flux;
+  v.play().catch(() => {});
+  ECR.video = v; ECR.prec = null; ECR.lue = null; ECR.aLire = true;
+  ocrPret().then(() => { if (mode === "video" && !ETAT.ecran) ecranEtat("Lecture de l'écran prête : en attente d'une page immobile…"); })
+    .catch((e) => ecranEtat("Lecture de l'écran indisponible : " + echap(e.message || e) + ". L'audio continue."));
+  ECR.minuterie = setInterval(surveiller, 500);
+}
+function ecranArreter() {
+  clearInterval(ECR.minuterie); ECR.minuterie = null;
+  if (ECR.video) { ECR.video.srcObject = null; ECR.video = null; }
+  if (ETAT.ecran) ecranEtat("Dernière page lue à " + ETAT.ecran.h + ".");
+}
+function vignette() {
+  const c = ECR.c || (ECR.c = Object.assign(document.createElement("canvas"), { width: 96, height: 54 }));
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.drawImage(ECR.video, 0, 0, 96, 54);
+  const d = g.getImageData(0, 0, 96, 54).data, gris = new Uint8Array(96 * 54);
+  for (let i = 0; i < gris.length; i++) gris[i] = (d[i * 4] * 3 + d[i * 4 + 1] * 6 + d[i * 4 + 2]) / 10;
+  return gris;
+}
+function ecart(a, b) {
+  if (!a || !b) return 255;
+  let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i] - b[i]);
+  return s / a.length;
+}
+function surveiller() {
+  const v = ECR.video; if (!v || !v.videoWidth || mode !== "video") return;
+  const vg = vignette(), bouge = ecart(vg, ECR.prec) > 2.5;
+  ECR.prec = vg;
+  if (bouge) { ECR.aLire = true; return; }                 // la page défile : on attend qu'elle s'immobilise
+  if (!ECR.aLire || ECR.enCours || !ECR.ord) return;
+  ECR.aLire = false;
+  if (ecart(vg, ECR.lue) <= 1.5) return;                   // même page que la dernière lue
+  ECR.lue = vg; lirePage();
+}
+function fusionner(bandes) {
+  // les bandes se chevauchent : on retire en tête de chaque bande les lignes déjà lues à la fin de la précédente
+  const norm = (l) => l.toLowerCase().replace(/[^a-z0-9à-ÿ]+/g, "");
+  const propre = (t) => t.split("\n").map((l) => l.replace(/\s+/g, " ").trim()).filter((l) => (l.match(/[A-Za-zÀ-ÿ0-9]/g) || []).length >= 3);
+  let sortie = [];
+  bandes.forEach((t, i) => {
+    let lignes = propre(t);
+    if (i && sortie.length) {
+      const fin = sortie.slice(-8).map(norm);
+      let k = 0;
+      for (let j = 0; j < Math.min(8, lignes.length); j++) if (fin.includes(norm(lignes[j]))) k = j + 1;
+      lignes = lignes.slice(k);
+    }
+    sortie = sortie.concat(lignes);
+  });
+  return sortie.join("\n");
+}
+function ressemblance(a, b) {
+  if (!a || !b) return 0;
+  const m = (t) => new Set(t.toLowerCase().split(/[^a-z0-9à-ÿ]+/).filter((x) => x.length > 2));
+  const A = m(a), B = m(b); let c = 0; A.forEach((x) => { if (B.has(x)) c++; });
+  return c / Math.max(1, Math.max(A.size, B.size));
+}
+async function lirePage() {
+  ECR.enCours = true; const t0 = performance.now(), quand = new Date();
+  try {
+    const v = ECR.video, W = v.videoWidth, H = v.videoHeight;
+    const k = W > 2200 ? 2200 / W : (W < 1400 ? 1.5 : 1), cw = Math.round(W * k), ch = Math.round(H * k);
+    const grand = Object.assign(document.createElement("canvas"), { width: cw, height: ch });
+    grand.getContext("2d").drawImage(v, 0, 0, cw, ch);
+    // trois bandes qui se chevauchent ; chaque bande ne garde que les lignes ENTIÈRES dont le milieu tombe dans sa part :
+    // une ligne coupée au bord d'une bande est lue en entier par la bande voisine
+    const N = 3, haut = Math.ceil(ch / N), marge = Math.round(ch * 0.06), bandes = [];
+    for (let i = 0; i < N; i++) {
+      const y0 = Math.max(0, i * haut - marge), y1 = Math.min(ch, (i + 1) * haut + marge);
+      const c = Object.assign(document.createElement("canvas"), { width: cw, height: y1 - y0 });
+      c.getContext("2d").drawImage(grand, 0, y0, cw, y1 - y0, 0, 0, cw, y1 - y0);
+      bandes.push({ c, y0, h: y1 - y0, debut: i * haut, fin: i === N - 1 ? ch : (i + 1) * haut, coupeHaut: y0 > 0, coupeBas: y1 < ch });
+    }
+    const res = await Promise.all(bandes.map((b) => ECR.ord.addJob("recognize", b.c, {}, { text: true, blocks: true })));
+    const lignes = [];
+    res.forEach((r, i) => {
+      const b = bandes[i], blocs = r.data && r.data.blocks;
+      if (!Array.isArray(blocs)) { lignes.push(String((r.data && r.data.text) || "")); return; }
+      blocs.forEach((bl) => (bl.paragraphs || []).forEach((pa) => (pa.lines || []).forEach((li) => {
+        const bb = li.bbox || {};
+        if (b.coupeHaut && bb.y0 <= 3) return;
+        if (b.coupeBas && bb.y1 >= b.h - 3) return;
+        const milieu = b.y0 + (bb.y0 + bb.y1) / 2;
+        if (milieu < b.debut || milieu >= b.fin) return;
+        lignes.push(li.text || "");
+      })));
+    });
+    const texte = fusionner([lignes.join("\n")]);
+    const ms = Math.round(performance.now() - t0);
+    if (texte.replace(/\s/g, "").length < 40) { ecranEtat("Aucun texte lisible à l'écran (" + heure(quand) + ")."); return; }
+    if (ETAT.ecran && ressemblance(texte, ETAT.ecran.texte) > 0.93) return;   // même page, relue après un léger mouvement
+    ETAT.ecran = { h: heure(quand), texte, quand: quand.getTime(), ms };
+    ETAT.lectures.push({ h: ETAT.ecran.h, texte, ms });
+    ecranEtat("Page lue à " + ETAT.ecran.h + " en " + (ms / 1000).toFixed(1).replace(".", ",") + " s (" + texte.length.toLocaleString("fr-FR") + " caractères) "
+      + "<details><summary>voir le texte lu</summary><div id=\"ecran-texte\">" + echap(texte) + "</div></details>");
+    ligneFil('<span class="h">' + ETAT.ecran.h + '</span>Nouvelle page à l\'écran, lue et jointe à l\'analyse.', "page");
+    ETAT.ecranNouveau = true; envoyer();
+  } catch (e) {
+    ecranEtat("Lecture de l'écran impossible : " + echap(e.message || e) + ". L'audio continue.");
+  } finally { ECR.enCours = false; }
+}
 
 /* ---------- compte rendu (texte brut, pour la synthèse après la réunion) ---------- */
 $("b-cr").addEventListener("click", () => {
@@ -366,15 +676,18 @@ $("b-cr").addEventListener("click", () => {
     + "\n\n=== CE QUI S'EST DIT (transcription automatique, interlocuteurs non distingués) ===\n"
     + ETAT.phrases.map((p) => "[" + p.h + "] " + p.t).join("\n")
     + "\n\n=== COMMENTAIRES ===\n"
-    + ETAT.coms.map((c) => "[" + c.h + "] " + (NATURES[c.nature] || "") + " — " + c.texte + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n");
+    + ETAT.coms.map((c) => "[" + c.h + "] " + (NATURES[c.nature] || "") + (c.repere ? " (" + c.repere + ")" : "") + " — " + c.texte + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n")
+    + (ETAT.lectures.length ? "\n\n=== PAGES LUES À L'ÉCRAN (lecture automatique) ===\n" + ETAT.lectures.map((l) => "--- [" + l.h + "] ---\n" + l.texte).join("\n\n") : "");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([t], { type: "text/plain;charset=utf-8" }));
   a.download = "COMMENTE " + d.toISOString().slice(0, 16).replace("T", " ").replace(":", "h") + ".txt";
   document.body.appendChild(a); a.click(); a.remove();
 });
-window.addEventListener("beforeunload", (ev) => { if (ETAT.phrases.length) { ev.preventDefault(); ev.returnValue = ""; } });
+window.addEventListener("beforeunload", (ev) => { if (ETAT.phrases.length || ETAT.lectures.length) { ev.preventDefault(); ev.returnValue = ""; } });
+window.COMMENTE_ESSAI = { ETAT, fusionner, ressemblance, afficherCom, envoyer, get mode() { return mode; } };   // pour les essais
 })();
 </script>
+
 <!-- bloc à part : le contrôle d'accès tourne même si le code de COMMENTE s'arrête sur une erreur -->
 <script>
 function accesEchap(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
