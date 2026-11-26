@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMENTE — FIDAL Notaires</title>
+<!-- COMMENTE v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+     Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
+     sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
+     suivre la visio sur haut-parleurs, pas au casque. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+:root{--nuit:#0F2238;--canard:#33838B;--orange:#FF982D;--carmin:#A01040;--cyan:#6DD5DC;--vert:#1F7A4D;--ocre:#7A5A00;--orange-t:#B25F00;--fond:#F4F6F8;--trait:#D9DEE5;--gris:#657D96}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--nuit);background:var(--fond);font-size:14px}
+button{font:inherit;cursor:pointer}
+.cache{display:none!important}
+/* barre du haut */
+#barre{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--nuit);color:#fff;flex-wrap:wrap}
+#barre h1{margin:0;font-size:20px;font-weight:600;letter-spacing:1px}
+#barre .sous{font-size:12.5px;color:#B9C6D4}
+#voyant{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:2px;background:rgba(255,255,255,.08);font-size:12.5px}
+#voyant i{width:10px;height:10px;border-radius:50%;background:#8796A8;display:inline-block}
+#voyant.poste i{background:#3CC98A}#voyant.google i{background:var(--orange)}#voyant.ecoute i{animation:battre 1.2s infinite}
+@keyframes battre{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){#voyant.ecoute i{animation:none}}
+#barre .espace{flex:1}
+#mesure{font-size:12.5px;color:#B9C6D4}
+.btn{padding:7px 14px;border:0;border-radius:2px;background:var(--canard);color:#fff;font-weight:600}
+.btn.arret{background:var(--carmin)}
+.btn.clair{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;font-weight:400}
+.btn:focus-visible,.lien:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+/* trois colonnes */
+#grille{display:grid;grid-template-columns:300px minmax(0,1fr) minmax(0,1.25fr);height:calc(100% - 52px)}
+.col{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--trait)}
+.col:last-child{border-right:0}
+.col h2{margin:0;padding:12px 16px 8px;font-size:15px;font-weight:600;display:flex;align-items:baseline;gap:8px}
+.col h2 small{font-weight:400;color:var(--gris);font-size:12px}
+.defile{overflow:auto;flex:1;padding:0 16px 16px}
+/* pièces */
+#depot{margin:0 16px 10px;border:1.5px dashed #AEB9C6;border-radius:2px;padding:14px;text-align:center;color:var(--gris);background:#fff;font-size:13px}
+#depot.survol{border-color:var(--canard);background:#EAF4F5}
+#depot label{color:var(--canard);text-decoration:underline;cursor:pointer}
+.piece{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--trait);font-size:13px}
+.piece .nom{flex:1;word-break:break-word}
+.piece .taille{color:var(--gris);font-size:11.5px}
+.piece .pb{color:var(--orange-t);font-size:12px}
+.piece button{border:0;background:none;color:var(--gris);font-size:16px;line-height:1;padding:0 2px}
+#contexte{width:100%;min-height:74px;resize:vertical;border:1px solid #C5CCD6;border-radius:2px;padding:8px;font:inherit;font-size:13px}
+.etiq{display:block;margin:14px 0 4px;font-size:12px;color:var(--gris)}
+.aide{font-size:12px;color:var(--gris);line-height:1.45;margin:10px 0 0}
+/* transcription */
+.phrase{padding:6px 0;border-bottom:1px solid #E7EBF0;line-height:1.45}
+.phrase .h{color:var(--gris);font-size:11.5px;margin-right:8px;font-variant-numeric:tabular-nums}
+#provisoire{color:var(--gris);font-style:italic;padding:6px 0;min-height:1.5em}
+#saisie{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--trait);background:#fff}
+#saisie input{flex:1;border:1px solid #C5CCD6;border-radius:2px;padding:7px 9px;font:inherit}
+/* commentaires */
+.com{background:#fff;border:1px solid var(--trait);border-left:5px solid var(--canard);border-radius:2px;padding:10px 12px;margin-bottom:10px}
+.com.alerte{border-left-color:var(--carmin)}
+.com.question{border-left-color:var(--orange)}
+.com .tete{display:flex;gap:8px;font-size:11.5px;color:var(--gris);margin-bottom:4px;font-variant-numeric:tabular-nums}
+.com .tete b{font-weight:600}
+.com.alerte .tete b{color:var(--carmin)}.com.question .tete b{color:var(--orange-t)}.com.precision .tete b{color:var(--canard)}
+.com .texte{font-size:15px;line-height:1.45}
+.com .source{margin-top:6px;font-size:12.5px;color:#3D5168;border-top:1px dotted var(--trait);padding-top:6px}
+.com .source q{font-style:italic}
+.com .sur{margin-top:4px;font-size:11.5px;color:var(--gris)}
+#attente{font-size:12.5px;color:var(--gris);padding:0 16px 8px;min-height:1.4em}
+.vide{color:var(--gris);font-size:13px;line-height:1.5;padding:8px 0}
+#alerte{display:none;padding:8px 18px;background:#FFF4E8;border-left:4px solid var(--orange);font-size:13px}
+#alerte.vue{display:block}
+@media (max-width:1000px){#grille{grid-template-columns:1fr;height:auto}.col{border-right:0;border-bottom:1px solid var(--trait);max-height:none}.defile{max-height:60vh}}
+/* 26/11/2026 — voile du contrôle d'accès par personne (étape 3 de PLATEFORME), repris de FUSION, MONETA et SUIVI */
+#acces-voile{position:fixed;inset:0;z-index:100000;background:#F4F6F8;display:flex;align-items:center;justify-content:center;padding:20px}
+#acces-voile[hidden]{display:none}
+.acces-carte{width:100%;max-width:400px;background:#fff;border:1px solid #D9DEE5;border-top:4px solid #33838B;border-radius:8px;padding:22px 24px;font-family:'Segoe UI',sans-serif;color:#0F2238}
+.acces-carte h2{margin:0 0 4px;font-family:Georgia,serif;font-size:22px;letter-spacing:.5px}
+.acces-carte .acces-msg{margin:0 0 12px;font-size:13.5px;line-height:1.45}
+.acces-carte .acces-err{margin:0 0 10px;font-size:13px;color:#A01040;font-weight:600}
+.acces-carte label{display:block;margin:10px 0 3px;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#657D96}
+.acces-carte input{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #C5CCD6;border-radius:4px;font:inherit;font-size:14px}
+.acces-carte .acces-actions{margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.acces-carte button{padding:8px 16px;border:0;border-radius:4px;background:#33838B;color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.acces-carte button[disabled]{opacity:.5;cursor:wait}
+.acces-carte a{color:#33838B;font-size:13px}
+#acces-bandeau{position:fixed;left:12px;bottom:12px;z-index:9000;padding:6px 10px;border-left:4px solid #FF982D;background:#FFF4E8;font:12.5px 'Segoe UI',sans-serif;color:#0F2238;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="acces-voile"><div class="acces-carte" id="acces-carte"><h2>COMMENTE</h2><p class="acces-msg">Vérification de votre accès…</p></div></div>
+<header id="barre">
+  <h1>COMMENTE</h1>
+  <span class="sous">Commentaires en marge de la réunion</span>
+  <span id="voyant" title="Où le son est transcrit"><i></i><span id="voyant-t">Écoute arrêtée</span></span>
+  <span class="espace"></span>
+  <span id="mesure"></span>
+  <button class="btn clair" id="b-cr" type="button">Enregistrer le compte rendu</button>
+  <button class="btn" id="b-ecoute" type="button">Écouter</button>
+</header>
+<div id="alerte" role="alert"></div>
+<main id="grille">
+  <section class="col">
+    <h2>Pièces du dossier <small id="pieces-total"></small></h2>
+    <div id="depot">Déposez ici les pièces<br>(PDF, Word, texte) ou <label for="fichiers">choisissez-les</label>
+      <input id="fichiers" type="file" multiple accept=".pdf,.docx,.txt,.md" class="cache"></div>
+    <div class="defile">
+      <div id="pieces"><p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux.</p></div>
+      <label class="etiq" for="contexte">Contexte de la réunion</label>
+      <textarea id="contexte" placeholder="Ex. : négociation de l'offre du lot 1, 72 rue Boissière ; j'interviens pour les acquéreurs ; le confrère représente le vendeur."></textarea>
+      <p class="aide">Suivez la visio sur les haut-parleurs du poste, pas au casque : seul le micro est écouté.
+        Prévenez les participants que la réunion est transcrite.</p>
+    </div>
+  </section>
+  <section class="col">
+    <h2>Ce qui se dit <small id="nb-phrases"></small></h2>
+    <div class="defile" id="fil-zone">
+      <div id="fil"><p class="vide">Appuyez sur « Écouter ». Chrome demandera une fois l'accès au micro.</p></div>
+      <div id="provisoire"></div>
+    </div>
+    <form id="saisie" autocomplete="off">
+      <input id="saisie-t" placeholder="Taper une phrase à commenter (essai, ou si l'écoute décroche)">
+      <button class="btn" type="submit">Ajouter</button>
+    </form>
+  </section>
+  <section class="col">
+    <h2>Commentaires <small id="nb-com"></small></h2>
+    <div id="attente"></div>
+    <div class="defile" id="coms"><p class="vide">Les commentaires apparaîtront ici, les plus récents en haut, avec le délai mesuré depuis la phrase.</p></div>
+  </section>
+</main>
+
+<script>
+/* ==================== COMMENTE v0.1 — 26/11/2026 ==================== */
+(function () {
+const $ = (id) => document.getElementById(id);
+const echap = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const heure = (d) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const ETAT = { pieces: [], phrases: [], coms: [], enAttente: [], enCours: false, delais: [] };
+const MAX_TOTAL = 400000;
+
+function alerte(t) { const a = $("alerte"); a.textContent = t || ""; a.classList.toggle("vue", !!t); }
+
+/* ---------- pièces ---------- */
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+async function lirePdf(f) {
+  const doc = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
+  let t = "";
+  for (let i = 1; i <= doc.numPages; i++) {
+    const p = await doc.getPage(i), c = await p.getTextContent();
+    t += "\n[page " + i + "]\n" + c.items.map((x) => x.str + (x.hasEOL ? "\n" : " ")).join("");
+  }
+  return { texte: t.replace(/[ \t]+/g, " ").trim(), pages: doc.numPages };
+}
+async function lireFichier(f) {
+  const n = f.name.toLowerCase();
+  if (n.endsWith(".pdf")) {
+    if (!window.pdfjsLib) throw new Error("lecteur PDF non chargé");
+    const r = await lirePdf(f);
+    const pauvre = r.texte.replace(/\[page \d+\]/g, "").trim().length < 80 * r.pages;
+    return { texte: r.texte, pb: pauvre ? "Pièce scannée ou presque sans texte : son contenu n'est pas lisible par COMMENTE dans cette version." : "" };
+  }
+  if (n.endsWith(".docx")) {
+    if (!window.mammoth) throw new Error("lecteur Word non chargé");
+    const r = await mammoth.extractRawText({ arrayBuffer: await f.arrayBuffer() });
+    return { texte: r.value.trim(), pb: "" };
+  }
+  return { texte: (await f.text()).trim(), pb: "" };
+}
+async function ajouterPieces(liste) {
+  for (const f of liste) {
+    const p = { nom: f.name, texte: "", pb: "Lecture…" };
+    ETAT.pieces.push(p); afficherPieces();
+    try { const r = await lireFichier(f); p.texte = r.texte; p.pb = r.pb; }
+    catch (e) { p.pb = "Illisible : " + (e.message || e); }
+    afficherPieces();
+  }
+}
+function afficherPieces() {
+  const z = $("pieces");
+  if (!ETAT.pieces.length) { z.innerHTML = '<p class="vide">Aucune pièce : les commentaires se limiteront aux points de vigilance généraux.</p>'; $("pieces-total").textContent = ""; return; }
+  const total = ETAT.pieces.reduce((s, p) => s + p.texte.length, 0);
+  $("pieces-total").textContent = ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "");
+  z.innerHTML = ETAT.pieces.map((p, i) => '<div class="piece"><div class="nom">' + echap(p.nom)
+    + '<div class="taille">' + (p.texte ? Math.round(p.texte.length / 1000) + " k caractères" : "") + '</div>'
+    + (p.pb ? '<div class="pb">' + echap(p.pb) + '</div>' : '') + '</div>'
+    + '<button type="button" data-i="' + i + '" title="Retirer cette pièce" aria-label="Retirer ' + echap(p.nom) + '">×</button></div>').join("")
+    + (total > MAX_TOTAL ? '<p class="pb">Les pièces dépassent ' + MAX_TOTAL / 1000 + ' k caractères : la fin des dernières pièces ne sera pas lue.</p>' : '');
+}
+$("pieces").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-i]"); if (!b) return; ETAT.pieces.splice(Number(b.dataset.i), 1); afficherPieces(); });
+$("fichiers").addEventListener("change", (ev) => { ajouterPieces([...ev.target.files]); ev.target.value = ""; });
+const dep = $("depot");
+["dragenter", "dragover"].forEach((t) => dep.addEventListener(t, (ev) => { ev.preventDefault(); dep.classList.add("survol"); }));
+["dragleave", "drop"].forEach((t) => dep.addEventListener(t, (ev) => { ev.preventDefault(); dep.classList.remove("survol"); }));
+dep.addEventListener("drop", (ev) => ajouterPieces([...ev.dataTransfer.files]));
+
+/* ---------- fil de la conversation ---------- */
+function ajouterPhrase(texte, quand) {
+  texte = String(texte || "").trim(); if (!texte) return;
+  const p = { h: heure(quand || new Date()), t: texte, quand: (quand || new Date()).getTime() };
+  ETAT.phrases.push(p); ETAT.enAttente.push(p);
+  const z = $("fil"); if (ETAT.phrases.length === 1) z.innerHTML = "";
+  const d = document.createElement("div"); d.className = "phrase";
+  d.innerHTML = '<span class="h">' + p.h + '</span>' + echap(p.t); z.appendChild(d);
+  $("nb-phrases").textContent = ETAT.phrases.length + " phrase" + (ETAT.phrases.length > 1 ? "s" : "");
+  const zf = $("fil-zone"); zf.scrollTop = zf.scrollHeight;
+  envoyer();
+}
+$("saisie").addEventListener("submit", (ev) => { ev.preventDefault(); const i = $("saisie-t"); ajouterPhrase(i.value); i.value = ""; });
+
+/* ---------- analyse : une demande à la fois, les phrases arrivées entre-temps partent ensemble ---------- */
+async function envoyer() {
+  if (ETAT.enCours || !ETAT.enAttente.length) return;
+  if (ETAT.pieces.some((p) => p.pb === "Lecture…")) { $("attente").textContent = "Lecture des pièces en cours…"; setTimeout(envoyer, 600); return; }
+  ETAT.enCours = true;
+  const lot = ETAT.enAttente.splice(0);
+  const avant = ETAT.phrases.slice(0, ETAT.phrases.length - lot.length).slice(-12);
+  $("attente").textContent = "Analyse en cours…";
+  try {
+    const r = await fetch("/api/commente", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contexte: $("contexte").value,
+        pieces: ETAT.pieces.filter((p) => p.texte).map((p) => ({ nom: p.nom, texte: p.texte })),
+        deja: ETAT.coms.map((c) => c.texte),
+        fil: avant.map((p) => ({ h: p.h, t: p.t })),
+        nouvelles: lot.map((p) => ({ h: p.h, t: p.t }))
+      })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.erreur || "erreur " + r.status);
+    const maintenant = Date.now(), delai = Math.round((maintenant - lot[lot.length - 1].quand) / 1000);
+    ETAT.delais.push(delai); majMesure();
+    alerte("");
+    (d.commentaires || []).forEach((c) => afficherCom(c, lot, delai));
+  } catch (e) {
+    alerte("Analyse impossible : " + (e.message || e) + ". Les phrases suivantes seront tout de même envoyées.");
+  } finally {
+    ETAT.enCours = false; $("attente").textContent = "";
+    if (ETAT.enAttente.length) envoyer();
+  }
+}
+const NATURES = { alerte: "Alerte", precision: "Précision", question: "Question à poser" };
+function afficherCom(c, lot, delai) {
+  ETAT.coms.push({ ...c, h: heure(new Date()), sur: lot.map((p) => p.t).join(" "), delai });
+  const z = $("coms"); if (ETAT.coms.length === 1) z.innerHTML = "";
+  const d = document.createElement("div"); d.className = "com " + c.nature;
+  d.innerHTML = '<div class="tete"><b>' + NATURES[c.nature] + '</b><span>' + heure(new Date()) + '</span><span>délai ' + delai + ' s</span></div>'
+    + '<div class="texte">' + echap(c.texte) + '</div>'
+    + (c.piece || c.extrait ? '<div class="source">' + (c.piece ? echap(c.piece) : '') + (c.extrait ? (c.piece ? ' : ' : '') + '<q>' + echap(c.extrait) + '</q>' : '') + '</div>' : '')
+    + '<div class="sur">Sur : « ' + echap(lot.map((p) => p.t).join(" ").slice(0, 160)) + (lot.map((p) => p.t).join(" ").length > 160 ? "…" : "") + ' »</div>';
+  z.prepend(d);
+  $("nb-com").textContent = ETAT.coms.length;
+}
+function majMesure() {
+  const t = ETAT.delais; if (!t.length) return;
+  const moy = Math.round(t.reduce((s, x) => s + x, 0) / t.length);
+  $("mesure").textContent = "Délai moyen " + moy + " s (dernier " + t[t.length - 1] + " s)";
+}
+
+/* ---------- écoute : reconnaissance vocale de Chrome ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, ecoute = false, local = false;
+function voyant(etat, texte) { const v = $("voyant"); v.className = etat; $("voyant-t").textContent = texte; }
+async function essayerLocal() {
+  // Chrome récent : transcription sur le poste même, sans envoi du son. Absente ou indisponible → serveurs de Google.
+  if (!SR || typeof SR.available !== "function") return false;
+  const o = { langs: ["fr-FR"], processLocally: true };
+  try {
+    let s = await SR.available(o);
+    if ((s === "downloadable" || s === "downloading") && typeof SR.install === "function") {
+      voyant("", "Préparation de la transcription sur le poste…");
+      await SR.install(o); s = await SR.available(o);
+    }
+    return s === "available";
+  } catch (e) { return false; }
+}
+function creer() {
+  const r = new SR();
+  r.lang = "fr-FR"; r.continuous = true; r.interimResults = true;
+  if (local) { try { r.processLocally = true; } catch (e) { local = false; } }
+  r.onresult = (ev) => {
+    let prov = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      const x = ev.results[i];
+      if (x.isFinal) ajouterPhrase(x[0].transcript, new Date()); else prov += x[0].transcript;
+    }
+    $("provisoire").textContent = prov;
+  };
+  r.onerror = (ev) => {
+    if (ev.error === "no-speech" || ev.error === "aborted") return;
+    if (local && (ev.error === "language-not-supported" || ev.error === "service-not-allowed")) {
+      local = false; voyant("google ecoute", "Transcription par les serveurs de Google"); return;   // relance en mode serveur à la fin
+    }
+    if (ev.error === "not-allowed") { arreter(); alerte("Chrome refuse l'accès au micro : autorisez-le (icône à gauche de l'adresse), puis appuyez de nouveau sur « Écouter »."); return; }
+    if (ev.error === "network") { alerte("La transcription ne répond pas (réseau). Nouvel essai automatique…"); return; }
+    alerte("Incident d'écoute : " + ev.error + ". Nouvel essai automatique…");
+  };
+  r.onend = () => { $("provisoire").textContent = ""; if (ecoute) setTimeout(() => { if (ecoute) demarrerRec(); }, 250); };
+  return r;
+}
+function demarrerRec() {
+  rec = creer();
+  voyant((local ? "poste" : "google") + " ecoute", local ? "Transcription sur le poste" : "Transcription par les serveurs de Google");
+  try { rec.start(); } catch (e) { /* déjà lancée */ }
+}
+async function demarrer() {
+  if (!SR) { alerte("Ce navigateur ne propose pas la reconnaissance vocale : ouvrez COMMENTE dans Chrome."); return; }
+  ecoute = true; $("b-ecoute").textContent = "Arrêter"; $("b-ecoute").classList.add("arret"); alerte("");
+  local = await essayerLocal();
+  if (!ecoute) return;
+  if (ETAT.phrases.length === 0) $("fil").innerHTML = "";
+  demarrerRec();
+}
+function arreter() {
+  ecoute = false; $("b-ecoute").textContent = "Écouter"; $("b-ecoute").classList.remove("arret");
+  try { rec && rec.stop(); } catch (e) {}
+  voyant("", "Écoute arrêtée");
+}
+$("b-ecoute").addEventListener("click", () => { ecoute ? arreter() : demarrer(); });
+
+/* ---------- compte rendu (texte brut, pour la synthèse après la réunion) ---------- */
+$("b-cr").addEventListener("click", () => {
+  const d = new Date();
+  let t = "COMMENTE — compte rendu du " + d.toLocaleDateString("fr-FR") + "\n\nContexte : " + ($("contexte").value || "(non précisé)")
+    + "\nPièces : " + (ETAT.pieces.map((p) => p.nom).join(" ; ") || "(aucune)")
+    + "\n\n=== CE QUI S'EST DIT (transcription automatique, interlocuteurs non distingués) ===\n"
+    + ETAT.phrases.map((p) => "[" + p.h + "] " + p.t).join("\n")
+    + "\n\n=== COMMENTAIRES ===\n"
+    + ETAT.coms.map((c) => "[" + c.h + "] " + (NATURES[c.nature] || "") + " — " + c.texte + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([t], { type: "text/plain;charset=utf-8" }));
+  a.download = "COMMENTE " + d.toISOString().slice(0, 16).replace("T", " ").replace(":", "h") + ".txt";
+  document.body.appendChild(a); a.click(); a.remove();
+});
+window.addEventListener("beforeunload", (ev) => { if (ETAT.phrases.length) { ev.preventDefault(); ev.returnValue = ""; } });
+})();
+</script>
+<!-- bloc à part : le contrôle d'accès tourne même si le code de COMMENTE s'arrête sur une erreur -->
+<script>
+function accesEchap(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+/* ==================== ACCÈS PAR PERSONNE — étape 3 de PLATEFORME (21/11/2026, JFD : option A ; COMMENTE : 26/11/2026) ====================
+   Décisions des 14 et 16/11 : chaque outil vérifie les droits à son ouverture ; identifiant (initiales) et mot de
+   passe tenus dans CARNET ; outil non ouvert = « En attente d'ouverture d'accès » avec demande par courriel ;
+   si CARNET ne répond pas, les derniers droits connus du poste valent sept jours.
+   Option A du 21/11 : PLATEFORME transmet la connexion dans le fragment de l'adresse (#acces=…) ; à défaut
+   (favori, lien d'un courriel), COMMENTE affiche son propre écran de connexion, mêmes initiales, même mot de passe.
+   Ce voile protège l'ÉCRAN ; les fonctions du serveur de COMMENTE ne vérifient pas encore la personne.
+   COMMENTE n'est ouvert qu'à l'administrateur général tant qu'aucun profil ne l'allume.
+ */
+const ACCES = { CARNET: "https://carnet-ivory.vercel.app/api/carnet", OUTIL: "commente", PLATEFORME: "https://phare-ashy.vercel.app/", CLE: "commente.acces", REPLI_MS: 7 * 864e5 };
+window.ACCES_COMMENTE = { verifie: false, niveau: 0, personne: null };
+function accesLire(){ try{ return JSON.parse(localStorage.getItem(ACCES.CLE) || "null"); }catch(e){ return null; } }
+function accesGarder(o){ try{ if(o) localStorage.setItem(ACCES.CLE, JSON.stringify(o)); else localStorage.removeItem(ACCES.CLE); }catch(e){} }
+async function accesCarnet(action, corps){
+  let r;
+  try{ r = await fetch(ACCES.CARNET, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(Object.assign({action}, corps || {}))}); }
+  catch(e){ const x = new Error("CARNET ne répond pas."); x.muet = true; throw x; }
+  const d = await r.json().catch(() => ({}));
+  if(!r.ok){ const x = new Error(d.erreur || ("Erreur " + r.status)); x.code = r.status; if(r.status >= 500) x.muet = true; throw x; }
+  return d;
+}
+function accesCarte(html){ const v = document.getElementById("acces-voile"); v.hidden = false; document.getElementById("acces-carte").innerHTML = "<h2>COMMENTE</h2>" + html; }
+function accesOuvrir(niveau, personne, repli){
+  window.ACCES_COMMENTE = { verifie: true, niveau, personne: personne || null };
+  document.getElementById("acces-voile").hidden = true;
+  const b = document.getElementById("acces-bandeau"); if(b) b.remove();
+  if(repli){ const z = document.createElement("div"); z.id = "acces-bandeau"; z.textContent = "CARNET ne répond pas : accès ouvert sur vos derniers droits connus (valables sept jours)."; document.body.appendChild(z); }
+}
+function accesEcranConnexion(message){
+  accesCarte('<p class="acces-msg">Connectez-vous avec vos initiales et votre mot de passe, les mêmes que sur PLATEFORME.</p>'
+    + (message ? '<p class="acces-err">' + accesEchap(message) + '</p>' : '')
+    + '<form id="acces-form"><label for="acces-id">Identifiant (initiales)</label><input id="acces-id" autocomplete="username" autocapitalize="none" spellcheck="false">'
+    + '<label for="acces-mdp">Mot de passe</label><input id="acces-mdp" type="password" autocomplete="current-password">'
+    + '<div class="acces-actions"><button type="submit">Se connecter</button><a href="' + ACCES.PLATEFORME + '">Ouvrir PLATEFORME</a></div></form>');
+  const f = document.getElementById("acces-form");
+  f.addEventListener("submit", async (ev) => {
+    ev.preventDefault(); const bt = f.querySelector("button"); bt.disabled = true;
+    try{
+      const d = await accesCarnet("p_connexion", {identifiant: document.getElementById("acces-id").value.trim(), mdp: document.getElementById("acces-mdp").value});
+      accesDecider(d, d.jeton);
+    }catch(e){ accesEcranConnexion(e.muet ? "CARNET ne répond pas pour l'instant : réessayez dans un moment." : e.message); }
+  });
+  const c = document.getElementById("acces-id"); if(c) c.focus();
+}
+function accesDecider(d, jeton){
+  const nom = d.personne ? [d.personne.prenom, d.personne.nom].filter(Boolean).join(" ") : "";
+  if(d.provisoire){
+    accesGarder(null);
+    accesCarte('<p class="acces-msg">' + (nom ? accesEchap(nom) + ", votre " : "Votre ") + 'mot de passe est encore provisoire. Choisissez d\'abord votre mot de passe personnel dans PLATEFORME, puis revenez dans COMMENTE.</p>'
+      + '<div class="acces-actions"><a href="' + ACCES.PLATEFORME + '">Ouvrir PLATEFORME</a></div>'); return;
+  }
+  const niveau = Number((d.acces || {})[ACCES.OUTIL]) || 0;
+  accesGarder({jeton, niveau, le: Date.now(), personne: d.personne || null, contact: d.contact || ""});
+  if(niveau >= 1){ accesOuvrir(niveau, d.personne, false); return; }
+  const sujet = "PLATEFORME — demande d'accès à COMMENTE", corps = "Bonjour,\n\nJe souhaite accéder à l'outil COMMENTE.\n\n" + nom;
+  accesCarte('<p class="acces-msg">' + (nom ? accesEchap(nom) + " : " : "") + '<b>en attente d\'ouverture d\'accès.</b><br>Votre compte n\'a pas encore accès à COMMENTE.</p>'
+    + '<div class="acces-actions">' + (d.contact ? '<a href="mailto:' + encodeURIComponent(d.contact) + '?subject=' + encodeURIComponent(sujet) + '&body=' + encodeURIComponent(corps) + '">Demander l\'accès par courriel</a>' : '')
+    + '<a href="' + ACCES.PLATEFORME + '">Ouvrir PLATEFORME</a><a href="#" id="acces-autre">Changer de compte</a></div>');
+  const a = document.getElementById("acces-autre"); if(a) a.addEventListener("click", (ev) => { ev.preventDefault(); accesGarder(null); accesEcranConnexion(); });
+}
+async function accesVerifier(){
+  // en local (fichier ouvert hors ligne, essais) le voile ne joue pas : aucune fonction du serveur n'y est joignable
+  if(location.protocol === "file:" && !window.ACCES_ESSAI){ document.getElementById("acces-voile").hidden = true; return; }
+  let jeton = null; const m = /[#&]acces=([^&]+)/.exec(location.hash || "");
+  if(m){ try{ jeton = decodeURIComponent(m[1]); }catch(e){ jeton = null; }
+    try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){} }   // le jeton ne reste pas dans l'adresse
+  const garde = accesLire();
+  if(!jeton && garde && garde.jeton) jeton = garde.jeton;
+  if(!jeton){ accesEcranConnexion(); return; }
+  try{ accesDecider(await accesCarnet("p_moi", {jeton}), jeton); }
+  catch(e){
+    if(e.muet){
+      if(garde && garde.jeton === jeton && garde.niveau >= 1 && Date.now() - (garde.le || 0) < ACCES.REPLI_MS){ accesOuvrir(garde.niveau, garde.personne, true); return; }
+      accesCarte('<p class="acces-err">CARNET ne répond pas pour l\'instant.</p><p class="acces-msg">Votre accès ne peut pas être vérifié. Réessayez dans un moment.</p><div class="acces-actions"><button type="button" id="acces-re">Réessayer</button></div>');
+      document.getElementById("acces-re").addEventListener("click", () => { accesCarte('<p class="acces-msg">Vérification de votre accès…</p>'); accesVerifier(); });
+      return;
+    }
+    accesGarder(null); accesEcranConnexion(e.code === 401 ? "Connexion expirée, reconnectez-vous." : e.message);
+  }
+}
+accesVerifier();
+</script>
+</body>
+</html>
