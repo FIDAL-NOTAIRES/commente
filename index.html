@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>COMMENTE — FIDAL Notaires</title>
-<!-- COMMENTE v0.7 (26/11/2026 nuit, demandes JFD : bouton « Brancher la documentation » avec animation de branchement en réseau de neurones ; colonne du dossier en couleur ; en bas, deux zones franchement distinctes — la parole sur papier à gauche, l'analyse à droite) ; v0.6 (26/11/2026 nuit, demande JFD : visuel entièrement retravaillé — scène sombre où les quatre silos alimentent en lumière le noyau des deux boutons ; volets clairs soignés : transcription en caractères d'acte, éléments en cartes avec extrait sur « papier ») ; v0.5 (26/11/2026 nuit, demande JFD : les sources en SILOS côte à côte, chacune reliée par un trait à la zone des boutons ; le vortex est retiré) ; v0.4.1 (26/11/2026 nuit : la page ne dépasse plus de la fenêtre, le champ de saisie du bas n'est plus coupé) ; v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
+<!-- COMMENTE v0.10 (27/11/2026, arbitrage JFD : les quatre colonnes de l'analyse sont les quatre SOURCES, c'est-à-dire les quatre silos — Dossier, MONETA, Articles, Comptabilité — et non plus quatre types d'élément ; Dossier reçoit tout ce qui vient des pièces (extrait du projet, autre pièce, point de vigilance, en étiquette), Articles reçoit les règles de droit citées de mémoire, à vérifier ; MONETA et Comptabilité restent en colonnes étroites « à brancher » tant qu'aucune base documentaire ne les alimente) ; v0.9 (26/11/2026 nuit, demande JFD : dans l'analyse, plus d'onglets — les QUATRE SOURCES en même temps, côte à côte (extrait du projet, élément du dossier, article de loi, point de vigilance), pour contester en direct sur plusieurs sources ; les éléments nés d'une même phrase se répondent d'une colonne à l'autre) ; v0.8 (26/11/2026 nuit, demande JFD sur capture : vision en silo améliorée — chaque source est une vraie colonne, de sa couleur, avec son propre réseau de neurones qui descend à l'intérieur sans croiser les voisines ; les quatre ne se rejoignent qu'en bas, sur les boutons) ; v0.7 (26/11/2026 nuit, demandes JFD : bouton « Brancher la documentation » avec animation de branchement en réseau de neurones ; colonne du dossier en couleur ; en bas, deux zones franchement distinctes — la parole sur papier à gauche, l'analyse à droite) ; v0.6 (26/11/2026 nuit, demande JFD : visuel entièrement retravaillé — scène sombre où les quatre silos alimentent en lumière le noyau des deux boutons ; volets clairs soignés : transcription en caractères d'acte, éléments en cartes avec extrait sur « papier ») ; v0.5 (26/11/2026 nuit, demande JFD : les sources en SILOS côte à côte, chacune reliée par un trait à la zone des boutons ; le vortex est retiré) ; v0.4.1 (26/11/2026 nuit : la page ne dépasse plus de la fenêtre, le champ de saisie du bas n'est plus coupé) ; v0.4 (26/11/2026 nuit, demandes JFD au PC : types de rendez-vous préchargés + « Autre » ; dossier à gauche, repliable, où les pièces se renomment et se rangent en sous-dossiers ; grande zone en deux volets : ce qui se dit à gauche, à droite les éléments qui valident ou contestent — extrait du projet, élément du dossier, article de loi, point de vigilance) ; v0.3 (26/11/2026 soir, arbitrages JFD en vocal : deux boutons ronds centrés « Audio » et « Audio + vidéo », vortex des sources au-dessus, transcription en dessous ; mode vidéo = lecture de l'écran de la visio dans le navigateur, recoupée avec ce qui se dit ; son de Teams ou de Lifesize capté avec le micro) ; v0.2 (26/11/2026 : le serveur vérifie la personne auprès de CARNET) ; v0.1 (26/11/2026) — commentaires en marge d'une réunion, à partir des pièces du dossier.
      Écoute : reconnaissance vocale intégrée à Chrome (arbitrage JFD du 26/11), sur le poste si Chrome le propose,
      sinon par les serveurs de Google — le voyant du haut dit toujours lequel. Le micro seul est écouté :
      suivre la visio sur haut-parleurs, pas au casque. -->
@@ -180,10 +180,6 @@ body{display:flex;flex-direction:column}
 /* ==================== v0.5 — sources en silos côte à côte, reliées à la zone des boutons ==================== */
 #sources-zone{max-width:1040px;margin:0 auto}
 #sources{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-.silo{background:var(--nuit);color:#8EA3BA;border-radius:16px 16px 3px 3px;padding:11px 8px 9px;text-align:center;font-size:12px;line-height:1.3;border-bottom:4px solid #2B4763;transition:border-color .3s}
-.silo b{display:block;font-size:14px;font-weight:600;color:#C9D5E2;letter-spacing:.3px;transition:color .3s}
-.silo small{font-size:12px;transition:color .3s}
-.silo.vive{border-bottom-color:var(--cyan)}.silo.vive b{color:#fff}.silo.vive small{color:var(--cyan)}
 #vortex-c{display:block;width:100%;height:50px}
 #commandes{padding-top:0}
 @media (max-width:620px){#sources{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
@@ -211,21 +207,9 @@ body{background:#EEF1F5}
 #vortex-c{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 #sources-zone{position:relative;max-width:1080px;margin:0 auto 50px}
 #sources{gap:18px}
-.silo{position:relative;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px 12px 12px;border-radius:12px;
   background:var(--verre);border:1px solid rgba(255,255,255,.09);border-bottom:1px solid rgba(255,255,255,.09);color:#8EA3BA;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06);transition:border-color .5s,background .5s,box-shadow .5s}
-.silo .ico{flex:none;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(109,213,220,.08);border:1px solid rgba(109,213,220,.16);
   color:#9FB6CC;font-family:var(--serif);font-size:19px;transition:color .5s,background .5s,border-color .5s}
-.silo .ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.silo b{font-family:var(--serif);font-weight:400;font-size:16px;letter-spacing:.4px;color:#DCE5EF}
-.silo small{display:block;font-size:12px;margin-top:1px;color:#7E94AC}
-.silo .led{position:absolute;top:10px;right:11px;width:7px;height:7px;border-radius:50%;background:#3B526B;transition:background .5s,box-shadow .5s}
-.silo::after{content:"";position:absolute;left:50%;bottom:-5px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:#1B3450;border:1px solid rgba(109,213,220,.25);transition:background .5s,box-shadow .5s}
-.silo.vive{background:rgba(109,213,220,.075);border-color:rgba(109,213,220,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 0 1px rgba(109,213,220,.08),0 10px 30px -14px rgba(109,213,220,.55)}
-.silo.vive .ico{color:var(--cyan);background:rgba(109,213,220,.14);border-color:rgba(109,213,220,.45)}
-.silo.vive b{color:#fff}.silo.vive small{color:var(--cyan)}
-.silo.vive .led{background:#4FE3A6;box-shadow:0 0 0 3px rgba(79,227,166,.16),0 0 10px #4FE3A6}
-.silo.vive::after{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
 /* noyau : les deux boutons */
 #commandes{position:relative;padding:0 0 4px;gap:46px}
 .rond{color:#E9EFF6}
@@ -311,7 +295,7 @@ body{background:#EEF1F5}
 .aide{color:#93A3B5}
 #grille.replie #gauche{background:#fff}
 @media (max-width:1000px){#centre-haut{padding:14px 12px 10px}#sources-zone{margin-bottom:40px}}
-@media (max-width:620px){.silo{padding:9px 10px}.silo .ico{width:30px;height:30px;font-size:15px}.silo b{font-size:14px}#commandes{gap:26px}}
+@media (max-width:620px){#commandes{gap:26px}}
 /* ==================== v0.7 — branchement, dossier en couleur, deux zones distinctes ==================== */
 /* le branchement de la documentation */
 #sources-zone{margin:0 auto}
@@ -328,11 +312,6 @@ body{background:#EEF1F5}
 .puce-doc:hover{border-color:#4FE3A6}
 .puce-doc[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.brancher::before{animation:none}}
-.silo.branchee{border-color:rgba(109,213,220,.30);background:rgba(109,213,220,.05)}
-.silo.branchee .ico{color:#9FDDE2;border-color:rgba(109,213,220,.32)}
-.silo.branchee b{color:#F1F5FA}
-.silo.branchee .led{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
-.silo.branchee::after{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
 /* la colonne du dossier, en couleur */
 #gauche,#grille.replie #gauche{background:linear-gradient(180deg,#123A52 0%,#0F2A44 42%,#0C1D31 100%);color:#DCE5EF;border-right:1px solid rgba(109,213,220,.18)}
 .g-tete h2{color:#fff}
@@ -393,6 +372,102 @@ body{background:#EEF1F5}
 #duo>section:last-child .defile{padding-top:4px}
 #duo>section:last-child .vide{color:#5F7690}
 @media (max-width:1000px){#duo>section:first-child{box-shadow:none}#liaison{height:76px}.puce-doc{position:static;display:block;margin:8px auto 0}}
+/* ==================== v0.8 — de vrais silos : une colonne par source, sa couleur, son réseau à l'intérieur ==================== */
+#sources{gap:22px}
+.silo{--c:109,213,220;position:relative;display:flex;flex-direction:column;border-radius:14px;color:#8EA3BA;
+  border:1px solid rgba(255,255,255,.10);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);transition:border-color .6s,box-shadow .6s,background .6s}
+.silo .chapeau{position:relative;display:flex;align-items:center;gap:12px;padding:12px 14px 11px 12px;border-bottom:1px solid rgba(255,255,255,.08);transition:border-color .6s}
+.silo .ico{flex:none;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(var(--c),.10);border:1px solid rgba(var(--c),.22);
+  color:rgba(var(--c),.75);font-family:var(--serif);font-size:19px;transition:color .6s,background .6s,border-color .6s}
+.silo .ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.silo b{display:block;font-family:var(--serif);font-weight:400;font-size:16px;letter-spacing:.4px;color:#DCE5EF;transition:color .6s}
+.silo small{display:block;font-size:12px;margin-top:1px;color:#7E94AC;transition:color .6s}
+.silo .led{position:absolute;top:10px;right:11px;width:7px;height:7px;border-radius:50%;background:#3B526B;transition:background .6s,box-shadow .6s}
+.silo .colonne{position:relative;height:104px;overflow:hidden;border-radius:0 0 13px 13px}
+.silo .niveau{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(0deg,rgba(var(--c),.20),rgba(var(--c),.03));transition:height 2s cubic-bezier(.3,.7,.3,1)}
+.silo .colonne::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(255,255,255,.035) 12px 13px)}
+.silo::after{content:"";position:absolute;left:50%;bottom:-6px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:#1B3450;border:1px solid rgba(var(--c),.35);transition:background .6s,box-shadow .6s}
+.silo.branchee{border-color:rgba(var(--c),.45);background:linear-gradient(180deg,rgba(var(--c),.09),rgba(var(--c),.02));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 16px 36px -22px rgba(var(--c),.9)}
+.silo.branchee .chapeau{border-bottom-color:rgba(var(--c),.28)}
+.silo.branchee .ico{color:rgb(var(--c));background:rgba(var(--c),.16);border-color:rgba(var(--c),.5)}
+.silo.branchee b{color:#fff}.silo.branchee small{color:rgb(var(--c))}
+.silo.branchee .led{background:rgb(var(--c));box-shadow:0 0 0 3px rgba(var(--c),.16),0 0 10px rgb(var(--c))}
+.silo.branchee .niveau{height:100%}
+.silo.branchee::after{background:rgb(var(--c));box-shadow:0 0 12px rgb(var(--c))}
+.silo.vive{border-color:rgba(var(--c),.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 0 1px rgba(var(--c),.14),0 18px 40px -20px rgb(var(--c))}
+#liaison{height:60px}
+@media (max-height:880px){.silo .colonne{height:76px}#liaison{height:54px}}
+@media (max-width:1000px){.silo .colonne{height:64px}}
+@media (max-width:620px){.silo .chapeau{padding:9px 10px}.silo .ico{width:30px;height:30px;font-size:15px}.silo b{font-size:14px}}
+@media (prefers-reduced-motion:reduce){.silo .niveau{transition:none}}
+/* ==================== v0.9 — l'analyse sur quatre sources en même temps ==================== */
+#duo{grid-template-columns:minmax(290px,.6fr) minmax(0,1.62fr)}
+#duo>section:last-child{container-type:inline-size}
+#duo>section:last-child h2{padding-bottom:14px}
+#attente{background:#13283F;color:#FFC27A;padding:0 22px 8px;min-height:0;margin-top:-6px}
+#attente:empty{display:none}
+#coms{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#C9D3DF;padding:0;overflow:hidden}
+.src{display:flex;flex-direction:column;min-height:0;min-width:0;background:#E3E9F1}
+.src h3{margin:0;display:flex;align-items:center;gap:8px;padding:10px 12px 9px 14px;background:#1B3450;color:#fff;font-family:var(--serif);font-weight:400;font-size:15px;letter-spacing:.2px;border-top:3px solid var(--k)}
+.src h3 .pic{flex:none;width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.10);color:var(--k);font-size:14px}
+.src h3 .pic svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.src h3 .bilan{margin-left:auto;display:flex;gap:4px;font-family:'Segoe UI',system-ui,sans-serif;font-size:11px;font-variant-numeric:tabular-nums}
+.src h3 .bilan i{font-style:normal;padding:1px 6px;border-radius:9px;background:rgba(255,255,255,.10);color:#B6C8DA}
+.src h3 .bilan i.c{background:#2E8B5E;color:#fff}.src h3 .bilan i.x{background:var(--carmin);color:#fff}.src h3 .bilan i.v{background:#FFE9CC;color:#8A4A00}.src h3 .bilan i.q{background:#DDF0F1;color:#1F5F66}
+.pile{flex:1;min-height:0;overflow:auto;padding:10px 10px 14px}
+.pile .vide{font-size:12.5px;color:#7088A1;padding:4px 4px;max-width:none}
+.el{padding:10px 12px 9px;margin-bottom:9px;border-radius:9px}
+.el .tete{margin-bottom:6px;gap:4px 8px}
+.el .verdict{padding:2px 9px 2px 7px;font-size:11.5px}
+.el .type{display:none}
+.el .repere{padding-left:0;border-left:0;font-size:11.5px;flex-basis:100%;order:5;color:var(--encre);font-family:var(--serif);font-size:13px}
+.el .tete>span:nth-last-child(2){margin-left:auto}
+.el .tete>span:last-child{display:none}
+.el .texte{font-size:14px;line-height:1.45}
+.el blockquote{margin-top:8px;padding:8px 10px 8px 12px;font-size:13px}
+.el .origine{font-size:11.5px;word-break:break-word}
+.el .sur{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* les éléments nés d'une même phrase se répondent d'une colonne à l'autre */
+.el.lie{border-color:var(--canard);box-shadow:0 0 0 2px rgba(51,131,139,.35),0 14px 28px -22px rgba(15,34,56,.45)}
+.el.pale{opacity:.42}
+.phrase.lie{border-left-color:var(--canard)!important;background:linear-gradient(90deg,rgba(51,131,139,.14),rgba(51,131,139,0) 70%)!important}
+.el{transition:opacity .15s,box-shadow .15s,border-color .15s}
+@container (max-width:760px){#coms{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}}
+@container (max-width:430px){#coms{grid-template-columns:1fr;grid-template-rows:none;overflow:auto}.src{min-height:160px}}
+@media (max-width:1000px){#duo{grid-template-columns:minmax(0,1fr)}#coms{min-height:70vh}}
+
+/* ==================== v0.10 — une colonne par SOURCE (les quatre silos) ; deux vivantes, deux à brancher ==================== */
+#coms{grid-template-columns:minmax(0,1.55fr) 104px minmax(0,1fr) 104px}
+.src h3 .pic{background:rgba(var(--c),.16);color:rgb(var(--c))}
+.src h3{border-top-color:rgb(var(--c))}
+.src h3 .nom{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.el .type{display:inline-block;font-family:'Segoe UI',system-ui,sans-serif;font-size:11px;font-weight:600;letter-spacing:.2px;color:#35506D;background:#E6ECF3;border-radius:9px;padding:2px 8px}
+.src[data-t="articles"] .el .type{display:none}
+.el.t-vigilance .type{background:#E2F3E9;color:#1F6A45}
+.el.t-projet .type{background:#DDF0F1;color:#1F5F66}
+#saisie input{min-width:0}#saisie .btn{flex:none}
+.src.attente{background:repeating-linear-gradient(135deg,#DDE4EC 0 9px,#E6ECF2 9px 18px)}
+.src.attente h3{flex-direction:column;align-items:center;gap:6px;padding:10px 6px 9px;font-size:13px;text-align:center;background:#24384F;color:#C3D0DE;border-top-style:dashed}
+.src.attente h3 .nom{max-width:100%;white-space:normal;line-height:1.15;overflow-wrap:anywhere}
+.src.attente h3 .pic{opacity:.75}
+.src.attente .bilan{display:none}
+.src.attente .pile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;overflow:hidden;text-align:center}
+.src.attente .prise{flex:none;width:34px;height:34px;border-radius:50%;border:1.5px dashed #8FA3B8;display:flex;align-items:center;justify-content:center;color:#6F859C}
+.src.attente .prise svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.src.attente .etat{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#5C728A}
+.src.attente .vide{font-size:11.5px;line-height:1.35;color:#6F859C;padding:0}
+@container (max-width:760px){
+  #coms{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  .src[data-t="dossier"]{grid-column:1;grid-row:1}.src[data-t="articles"]{grid-column:2;grid-row:1}
+  .src.attente{grid-row:2}.src.attente h3{flex-direction:row;justify-content:flex-start;padding:7px 12px;text-align:left}
+  .src.attente h3::after{content:"à brancher";margin-left:auto;font-family:'Segoe UI',system-ui,sans-serif;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#93A6BA}
+  .src.attente .pile{display:none}
+}
+@container (max-width:430px){
+  #coms{grid-template-columns:1fr;grid-template-rows:none;overflow:auto}
+  .src[data-t="dossier"],.src[data-t="articles"]{grid-column:auto;grid-row:auto}.src.attente{grid-row:auto;min-height:0}
+}
 </style>
 </head>
 <body>
@@ -454,16 +529,15 @@ body{background:#EEF1F5}
       </section>
       <section>
         <h2>Ce qui le confirme ou le conteste <small id="nb-com"></small><span class="zone">l'analyse</span></h2>
-        <div id="filtres" role="group" aria-label="Filtrer les éléments"></div>
         <div id="attente"></div>
-        <div class="defile" id="coms"><p class="vide">En regard de ce qui se dit, vous verrez ici les extraits du projet, les éléments du dossier, les articles de loi et les points de vigilance qui le confirment ou le contestent. Les plus récents sont en haut.</p></div>
+        <div id="coms"></div>
       </section>
     </div>
   </div>
 </main>
 
 <script>
-/* ==================== COMMENTE v0.7 — 26/11/2026 ==================== */
+/* ==================== COMMENTE v0.10 — 27/11/2026 ==================== */
 /* ---------- appels au serveur sous la garde de CARNET (lot 5 de CARNET, 26/11/2026) ----------
    Les fonctions du serveur de COMMENTE vérifient désormais la personne : chaque appel porte sa connexion
    (en-tête X-Carnet-Jeton, celle que le voile garde sur le poste). L'appel attend que le voile soit levé ;
@@ -505,7 +579,7 @@ async function accesAppel(url, options){
 const $ = (id) => document.getElementById(id);
 const echap = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const heure = (d) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-const ETAT = { pieces: [], phrases: [], coms: [], enAttente: [], enCours: false, delais: [], ecran: null, ecranNouveau: false, lectures: [] };
+const ETAT = { pieces: [], phrases: [], coms: [], enAttente: [], enCours: false, delais: [], ecran: null, ecranNouveau: false, lectures: [], analyses: 0 };
 const MAX_TOTAL = 400000;
 const MAX_ECRAN = 20000;   // caractères de la page affichée envoyés à chaque analyse
 let mode = null;           // null (arrêt), "audio" ou "video"
@@ -645,15 +719,18 @@ function ligneFil(html, classe) {
   const d = document.createElement("div"); d.className = "phrase" + (classe ? " " + classe : "");
   d.innerHTML = html; z.appendChild(d);
   const zf = $("fil-zone"); zf.scrollTop = zf.scrollHeight;
+  return d;
 }
 function ajouterPhrase(texte, quand) {
   texte = String(texte || "").trim(); if (!texte) return;
   const p = { h: heure(quand || new Date()), t: texte, quand: (quand || new Date()).getTime() };
   ETAT.phrases.push(p); ETAT.enAttente.push(p);
-  ligneFil('<span class="h">' + p.h + '</span>' + echap(p.t));
+  p.el = ligneFil('<span class="h">' + p.h + '</span>' + echap(p.t));
   $("nb-phrases").textContent = ETAT.phrases.length + " phrase" + (ETAT.phrases.length > 1 ? "s" : "");
   envoyer();
 }
+$("fil").addEventListener("mouseover", (ev) => { const e = ev.target.closest(".phrase[data-lot]"); if (e) lier(e.dataset.lot); });
+$("fil").addEventListener("mouseleave", () => lier(null));
 $("saisie").addEventListener("submit", (ev) => { ev.preventDefault(); const i = $("saisie-t"); ajouterPhrase(i.value); i.value = ""; });
 
 /* ---------- analyse : une demande à la fois ; les phrases arrivées entre-temps partent ensemble,
@@ -662,7 +739,8 @@ async function envoyer() {
   if (ETAT.enCours || (!ETAT.enAttente.length && !ETAT.ecranNouveau)) return;
   if (ETAT.pieces.some((p) => p.pb === "Lecture…")) { $("attente").textContent = "Lecture des pièces en cours…"; setTimeout(envoyer, 600); return; }
   ETAT.enCours = true;
-  const lot = ETAT.enAttente.splice(0);
+  const lot = ETAT.enAttente.splice(0), numero = ++ETAT.analyses;
+  lot.forEach((p) => { if (p.el) p.el.dataset.lot = numero; });
   const ecran = mode === "video" && ETAT.ecran ? { h: ETAT.ecran.h, texte: ETAT.ecran.texte.slice(0, MAX_ECRAN), nouvelle: ETAT.ecranNouveau, quand: ETAT.ecran.quand } : null;
   ETAT.ecranNouveau = false;
   const avant = ETAT.phrases.slice(0, ETAT.phrases.length - lot.length).slice(-12);
@@ -686,7 +764,8 @@ async function envoyer() {
     ETAT.delais.push(delai); majMesure();
     alerte("");
     const sur = lot.length ? lot.map((p) => p.t).join(" ") : "page affichée à " + (ecran ? ecran.h : "");
-    elementsRecus(d).forEach((c) => afficherCom(c, sur, delai));
+    if (ecran && ecran.nouvelle && ETAT.ecran && ETAT.ecran.el && !ETAT.ecran.el.dataset.lot) ETAT.ecran.el.dataset.lot = numero;
+    elementsRecus(d).forEach((c) => afficherCom(c, sur, delai, numero));
   } catch (e) {
     alerte("Analyse impossible : " + (e.message || e) + ". Les phrases suivantes seront tout de même envoyées.");
   } finally {
@@ -694,18 +773,22 @@ async function envoyer() {
     if (ETAT.enAttente.length || ETAT.ecranNouveau) envoyer();
   }
 }
-const TYPES = { projet: "Extrait du projet", dossier: "Élément du dossier", loi: "Article de loi", vigilance: "Point de vigilance" };
+const TYPES = { projet: "Projet d'acte", dossier: "Autre pièce", loi: "Article de loi", vigilance: "Point de vigilance" };
 const VERDICTS = { confirme: "Confirme", contredit: "Contredit", a_verifier: "À vérifier", question: "Question à poser" };
 function elementsRecus(d) {
   if (Array.isArray(d.elements)) return d.elements;
   // serveur resté en version précédente : on traduit ses commentaires
   return (d.commentaires || []).map((c) => ({ type: c.piece ? "dossier" : "vigilance", verdict: c.nature === "alerte" ? "contredit" : c.nature === "question" ? "question" : "confirme", texte: c.texte, repere: c.repere || "", piece: c.piece || "", extrait: c.extrait || "", article: "" }));
 }
-function afficherCom(c, sur, delai) {
-  const type = TYPES[c.type] ? c.type : "vigilance", verdict = VERDICTS[c.verdict] ? c.verdict : "a_verifier";
-  ETAT.coms.push({ ...c, type, verdict, h: heure(new Date()), sur, delai });
-  const z = $("coms"); if (ETAT.coms.length === 1) z.innerHTML = "";
-  const d = document.createElement("div"); d.className = "el " + verdict + " t-" + type;
+/* v0.10 — chaque élément va dans la colonne de SA SOURCE : tout ce qui vient des pièces (et les points de vigilance) dans Dossier,
+   les règles de droit dans Articles. MONETA et Comptabilité ne reçoivent rien tant qu'elles ne sont pas branchées. */
+const SOURCE_DU_TYPE = { projet: "dossier", dossier: "dossier", vigilance: "dossier", loi: "articles" };
+const NOM_SOURCE = { dossier: "Dossier", moneta: "MONETA", articles: "Articles", compta: "Comptabilité" };
+function afficherCom(c, sur, delai, lot) {
+  const type = TYPES[c.type] ? c.type : "vigilance", verdict = VERDICTS[c.verdict] ? c.verdict : "a_verifier", source = SOURCE_DU_TYPE[type];
+  ETAT.coms.push({ ...c, type, verdict, source, h: heure(new Date()), sur, delai });
+  const z = $("coms").querySelector('.src[data-t="' + source + '"] .pile'), videCol = z.querySelector(".vide"); if (videCol) videCol.remove();
+  const d = document.createElement("div"); d.className = "el " + verdict + " t-" + type; d.tabIndex = 0; if (lot != null) d.dataset.lot = lot;
   const loi = type === "loi" && c.article
     ? '<div class="origine"><b>' + echap(c.article) + '</b>, cité de mémoire : <a target="_blank" rel="noopener" href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=' + encodeURIComponent(c.article) + '">vérifier sur Légifrance</a></div>'
     : (type === "loi" ? '<div class="origine">Règle citée de mémoire : à vérifier dans le texte en vigueur.</div>' : '');
@@ -715,16 +798,39 @@ function afficherCom(c, sur, delai) {
     + (c.extrait ? '<blockquote>' + echap(c.extrait) + '</blockquote>' : '')
     + (c.piece ? '<div class="origine">' + echap(c.piece) + '</div>' : '') + loi
     + '<div class="sur">Sur : « ' + echap(sur.slice(0, 160)) + (sur.length > 160 ? "…" : "") + ' »</div>';
-  z.prepend(d);
+  z.prepend(d); z.scrollTop = 0; bilans();
   $("nb-com").textContent = ETAT.coms.length + " élément" + (ETAT.coms.length > 1 ? "s" : "");
 }
-const FILTRES = [["", "Tout"], ["projet", "Projet"], ["dossier", "Dossier"], ["loi", "Loi"], ["vigilance", "Vigilance"]];
-$("filtres").innerHTML = FILTRES.map(([id, nom], i) => '<button type="button" class="filtre" data-f="' + id + '" aria-pressed="' + (i === 0) + '">' + nom + '</button>').join("");
-$("filtres").addEventListener("click", (ev) => {
-  const b = ev.target.closest(".filtre"); if (!b) return;
-  $("coms").dataset.filtre = b.dataset.f;
-  $("filtres").querySelectorAll(".filtre").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-});
+/* v0.10 — quatre SOURCES en même temps : une colonne par silo, aux couleurs des silos du haut, le plus récent en haut.
+   Chaque analyse porte un numéro ; au survol d'un élément, ceux de la même analyse s'allument dans l'autre colonne,
+   ainsi que la phrase qui les a fait naître : on voit d'un coup ce que chaque source répond à la même parole. */
+const PRISE = '<svg viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6.5 8h11v4a5.5 5.5 0 0 1-11 0zM12 17.5V21"/></svg>';
+const COLONNES = [
+  { id: "dossier", c: "109,213,220", vide: "Ce que disent le projet d'acte et les autres pièces, et les points de vigilance.", pic: '<svg viewBox="0 0 24 24"><path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9a1.5 1.5 0 0 0-1.5-1.5H12L10 5H4.5A1.5 1.5 0 0 0 3 6.5z"/></svg>' },
+  { id: "moneta", c: "255,190,110", attente: "Les clauses du clausier.", pic: '§' },
+  { id: "articles", c: "255,150,186", vide: "Les règles de droit en jeu. Citées de mémoire : à vérifier sur Légifrance.", pic: '<svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.6 4 5v13c3-.4 6 0 8 1.5 2-1.5 5-1.9 8-1.5V5c-3-.4-6 0-8 1.5zM12 6.5v13"/></svg>' },
+  { id: "compta", c: "116,230,172", attente: "Le module comptable.", pic: '€' }
+];
+$("coms").innerHTML = COLONNES.map((c) => '<section class="src' + (c.attente ? ' attente' : '') + '" data-t="' + c.id + '" style="--c:' + c.c + '"><h3><span class="pic">' + c.pic + '</span><span class="nom">' + NOM_SOURCE[c.id]
+  + '</span><span class="bilan" aria-label="Bilan de cette source"></span></h3><div class="pile">'
+  + (c.attente ? '<span class="prise">' + PRISE + '</span><span class="etat">À brancher</span><p class="vide">' + c.attente + '</p>' : '<p class="vide">' + c.vide + '</p>') + '</div></section>').join("");
+function bilans() {
+  COLONNES.forEach((c) => {
+    const de = ETAT.coms.filter((x) => x.source === c.id), n = (v) => de.filter((x) => x.verdict === v).length;
+    $("coms").querySelector('.src[data-t="' + c.id + '"] .bilan').innerHTML =
+      [["contredit", "x", "≠"], ["a_verifier", "v", "?"], ["question", "q", "›"], ["confirme", "c", "✓"]].filter(([v]) => n(v)).map(([v, cl, signe]) => '<i class="' + cl + '" title="' + VERDICTS[v] + '">' + signe + ' ' + n(v) + '</i>').join("");
+  });
+}
+function lier(lot) {
+  document.querySelectorAll(".el.lie,.el.pale,.phrase.lie").forEach((e) => e.classList.remove("lie", "pale"));
+  if (lot == null) return;
+  document.querySelectorAll(".el").forEach((e) => e.classList.add(e.dataset.lot === String(lot) ? "lie" : "pale"));
+  document.querySelectorAll('.phrase[data-lot="' + lot + '"]').forEach((e) => e.classList.add("lie"));
+}
+$("coms").addEventListener("mouseover", (ev) => { const e = ev.target.closest(".el"); if (e) lier(e.dataset.lot); });
+$("coms").addEventListener("mouseleave", () => lier(null));
+$("coms").addEventListener("focusin", (ev) => { const e = ev.target.closest(".el"); if (e) lier(e.dataset.lot); });
+$("coms").addEventListener("focusout", () => lier(null));
 function majMesure() {
   const t = ETAT.delais; if (!t.length) return;
   const moy = Math.round(t.reduce((s, x) => s + x, 0) / t.length);
@@ -743,23 +849,28 @@ const ICO = {
   compta: '€'
 };
 const SOURCES = [
-  { id: "dossier", nom: "Dossier", detail: () => ETAT.pieces.length ? ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "") : "aucune pièce" },
-  { id: "moneta", nom: "MONETA", detail: () => "clauses" },
-  { id: "articles", nom: "Articles", detail: () => "par thème" },
-  { id: "compta", nom: "Comptabilité", detail: () => "module comptable" }
+  { id: "dossier", c: "109,213,220", nom: "Dossier", detail: () => ETAT.pieces.length ? ETAT.pieces.length + " pièce" + (ETAT.pieces.length > 1 ? "s" : "") : "aucune pièce" },
+  { id: "moneta", c: "255,190,110", nom: "MONETA", detail: () => "clauses, à brancher" },
+  { id: "articles", c: "255,150,186", nom: "Articles", detail: () => "cités de mémoire" },
+  { id: "compta", c: "116,230,172", nom: "Comptabilité", detail: () => "à brancher" }
 ];
-const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, dep: [], noyau: null, fils: [], noeuds: [], grains: [], t: 0, branche: false, pousse: 0, depart: 0,
+/* v0.8 — chaque silo est une COLONNE : son chapeau (nom), puis un fût où pousse SON réseau de neurones, à sa couleur.
+   Les réseaux ne se croisent jamais ; au pied de chaque fût, un seul trait part vers l'arche des deux boutons. */
+const VX = { c: $("vortex-c"), w: 0, h: 0, dpr: 1, dep: [], futs: [], noyau: null, fils: [], noeuds: [], grains: [], t: 0, branche: false, pousse: 0, depart: 0,
   immobile: window.matchMedia("(prefers-reduced-motion: reduce)").matches };
-const DUREE_POUSSE = 2100;   // millisecondes
+const DUREE_POUSSE = 2300;   // millisecondes
 function vortexSources() {
-  $("sources").innerHTML = SOURCES.map((s) => '<div class="silo' + (VX.branche ? " branchee" : "") + (mode ? " vive" : "") + '" data-id="' + s.id + '"><span class="ico">' + ICO[s.id] + '</span><span><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></span><i class="led"></i></div>').join("");
+  $("sources").innerHTML = SOURCES.map((s) => '<div class="silo' + (VX.branche ? " branchee" : "") + (mode ? " vive" : "") + '" data-id="' + s.id + '" style="--c:' + s.c + '">'
+    + '<div class="chapeau"><span class="ico">' + ICO[s.id] + '</span><span><b>' + s.nom + '</b><small>' + echap(s.detail()) + '</small></span><i class="led"></i></div>'
+    + '<div class="colonne"><i class="niveau"></i></div></div>').join("");
   vortexPlacer();
 }
 function vortexPlacer() {
   const b = VX.c.getBoundingClientRect(); if (!b.width) return;
   VX.w = b.width; VX.h = b.height; VX.dpr = window.devicePixelRatio || 1;
   VX.c.width = Math.round(VX.w * VX.dpr); VX.c.height = Math.round(VX.h * VX.dpr);
-  VX.dep = [...$("sources").querySelectorAll(".silo")].map((el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - b.left, y: r.bottom - b.top + 4 }; });
+  VX.futs = [...$("sources").querySelectorAll(".colonne")].map((el) => { const r = el.getBoundingClientRect(); return { x0: r.left - b.left, x1: r.right - b.left, y0: r.top - b.top, y1: r.bottom - b.top }; });
+  VX.dep = VX.futs.map((f) => ({ x: (f.x0 + f.x1) / 2, y: f.y1 + 7 }));
   const d = [...document.querySelectorAll("#commandes .disque")].map((el) => el.getBoundingClientRect());
   if (d.length === 2) {
     const cx = (d[0].left + d[0].width / 2 + d[1].left + d[1].width / 2) / 2 - b.left, cy = d[0].top + d[0].height / 2 - b.top;
@@ -768,10 +879,10 @@ function vortexPlacer() {
   reseau(); vortexDessiner(true);
 }
 function trait(i, t) {
-  // l'axone : du pied du silo jusqu'à sa place sur l'arche, du même côté que son silo
+  // le trait de sortie : du pied du silo jusqu'à sa place sur l'arche, du même côté que son silo
   const a = VX.dep[i], n = VX.noyau, x3 = n.x + Math.max(-0.82, Math.min(0.82, (a.x - n.x) / (VX.w * 0.62))) * n.rx;
   const y3 = n.y - n.ry * Math.sqrt(1 - Math.pow((x3 - n.x) / n.rx, 2)), u = 1 - t, dy = y3 - a.y;
-  const y1 = a.y + dy * 0.85, y2 = a.y + dy * 0.1;
+  const y1 = a.y + dy * 0.9, y2 = a.y + dy * 0.15;
   return { x: u * u * u * a.x + 3 * u * u * t * a.x + 3 * u * t * t * x3 + t * t * t * x3, y: u * u * u * a.y + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y3 };
 }
 function hasard(g) { return () => { g |= 0; g = g + 0x6D2B79F5 | 0; let t = Math.imul(g ^ g >>> 15, 1 | g); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -781,30 +892,28 @@ function courbe(p, q, bombe, pas) {
   return pts;
 }
 function reseau() {
-  // le réseau est le même à chaque affichage (tirage à graine fixe) : axones, ramifications et synapses entre voisins
-  VX.fils = []; VX.noeuds = []; const n = VX.noyau; if (!n || !VX.dep.length) return;
-  const al = hasard(20261126), haut = Math.min(...VX.dep.map((a) => a.y)), bas = n.y - n.ry - 4, borne = (y) => Math.max(haut + 6, Math.min(bas, y));
-  VX.dep.forEach((a, i) => {
-    const axe = []; for (let k = 0; k <= 44; k++) axe.push(trait(i, k / 44));
-    const t0 = 0.04 + i * 0.05;
-    VX.fils.push({ pts: axe, t0, duree: 0.6, axe: true });
-    [0.2, 0.38, 0.56, 0.74].forEach((t, j) => {
-      const p = trait(i, t), sens = (j % 2 ? 1 : -1) * (a.x < n.x ? 1 : -1);
-      const q = { x: p.x + sens * (22 + al() * 52), y: borne(p.y + (al() - 0.3) * 30) };
-      const tb = t0 + t * 0.6;
-      VX.fils.push({ pts: courbe(p, q, (al() - 0.5) * 16, 12), t0: tb, duree: 0.2 });
-      VX.noeuds.push({ x: p.x, y: p.y, t: tb, r: 1.6, ph: al() * 6 });
-      VX.noeuds.push({ x: q.x, y: q.y, t: tb + 0.2, r: 2 + al() * 1.6, ph: al() * 6 });
-      if (al() < 0.7) {
-        const q2 = { x: q.x + sens * (12 + al() * 30), y: borne(q.y + 8 + al() * 16) };
-        VX.fils.push({ pts: courbe(q, q2, (al() - 0.5) * 10, 8), t0: tb + 0.2, duree: 0.14 });
-        VX.noeuds.push({ x: q2.x, y: q2.y, t: tb + 0.34, r: 1.4 + al() * 1.2, ph: al() * 6 });
-      }
+  // un réseau par silo, enfermé dans son fût (tirage à graine fixe : le même dessin à chaque affichage)
+  VX.fils = []; VX.noeuds = []; const n = VX.noyau; if (!n || !VX.futs.length) return;
+  VX.futs.forEach((f, i) => {
+    const al = hasard(20261126 + i * 977), c = SOURCES[i].c, cx = (f.x0 + f.x1) / 2, l = f.x1 - f.x0, hf = f.y1 - f.y0, t0 = 0.03 + i * 0.05, phase = al() * 6;
+    const dansFut = (x) => Math.max(f.x0 + 10, Math.min(f.x1 - 10, x)), bas = (y) => Math.min(f.y1 - 7, y);
+    const tronc = []; for (let k = 0; k <= 30; k++) { const t = k / 30; tronc.push({ x: cx + Math.sin(t * 5.2 + phase) * l * 0.035 * Math.sin(t * Math.PI), y: f.y0 + 2 + t * (hf + 3) }); }
+    VX.fils.push({ pts: tronc, t0, duree: 0.5, axe: true, i, c });
+    const etages = hf > 90 ? [0.12, 0.26, 0.4, 0.54, 0.68, 0.82] : [0.14, 0.34, 0.54, 0.74];
+    etages.forEach((t, j) => {
+      const p = tronc[Math.round(t * 30)], sens = j % 2 ? 1 : -1;
+      const q = { x: dansFut(p.x + sens * l * (0.14 + al() * 0.3)), y: bas(p.y + 5 + al() * hf * 0.18) }, tb = t0 + t * 0.5;
+      VX.fils.push({ pts: courbe(p, q, -4 - al() * 8, 12), t0: tb, duree: 0.15, i, c });
+      VX.noeuds.push({ x: p.x, y: p.y, t: tb, r: 1.5, ph: al() * 6, c });
+      VX.noeuds.push({ x: q.x, y: q.y, t: tb + 0.15, r: 2 + al() * 1.5, ph: al() * 6, c });
+      [1, -1].forEach((cote) => { if (al() < 0.62) {
+        const q2 = { x: dansFut(q.x + sens * l * (0.05 + al() * 0.1) * (cote > 0 ? 1 : 0.3)), y: bas(q.y + cote * (6 + al() * hf * 0.12) + 6) };
+        VX.fils.push({ pts: courbe(q, q2, (al() - 0.5) * 8, 8), t0: tb + 0.15, duree: 0.11, i, c });
+        VX.noeuds.push({ x: q2.x, y: q2.y, t: tb + 0.26, r: 1.3 + al() * 1.1, ph: al() * 6, c });
+      } });
     });
-    if (i < VX.dep.length - 1) [0.5, 0.82].forEach((t) => {   // synapses entre axones voisins
-      const p = trait(i, t), q = trait(i + 1, Math.min(0.97, t + 0.06));
-      VX.fils.push({ pts: courbe(p, q, (al() - 0.5) * 22, 16), t0: 0.5 + al() * 0.2, duree: 0.22 });
-    });
+    const sortie = []; for (let k = 0; k <= 34; k++) sortie.push(trait(i, k / 34));
+    VX.fils.push({ pts: sortie, t0: t0 + 0.5, duree: 0.3, sortie: true, i, c });
   });
 }
 function vortexDessiner(fixe) {
@@ -814,45 +923,47 @@ function vortexDessiner(fixe) {
   const anime = VX.branche && !fixe && !VX.immobile;
   if (!anime) g.clearRect(0, 0, w, h);
   else { g.globalCompositeOperation = "destination-out"; g.fillStyle = "rgba(0,0,0,.2)"; g.fillRect(0, 0, w, h); g.globalCompositeOperation = "source-over"; }
-  const chaud = ETAT.enCours, teinte = chaud ? "255,152,45" : "109,213,220", force = mode ? 1 : 0.62;
-  if (!VX.branche) {
-    // non branché : trois points en attente sous chaque silo, arche éteinte
-    VX.dep.forEach((a) => { for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(a.x, a.y + 5 + k * 7, 1.3, 0, Math.PI * 2); g.fillStyle = "rgba(142,163,186," + (0.42 - k * 0.12) + ")"; g.fill(); } });
-  } else {
+  const chaud = ETAT.enCours, force = mode ? 1 : 0.7;
+  if (VX.branche) {
     VX.fils.forEach((f) => {
       const part = Math.max(0, Math.min(1, (VX.pousse - f.t0) / f.duree)); if (!part) return;
-      const dernier = Math.max(1, Math.round(part * (f.pts.length - 1)));
+      const dernier = Math.max(1, Math.round(part * (f.pts.length - 1))), gros = f.axe || f.sortie;
       g.beginPath(); g.moveTo(f.pts[0].x, f.pts[0].y);
       for (let k = 1; k <= dernier; k++) g.lineTo(f.pts[k].x, f.pts[k].y);
-      g.strokeStyle = "rgba(" + teinte + "," + ((f.axe ? 0.46 : 0.26) * force).toFixed(2) + ")"; g.lineWidth = f.axe ? 1.5 : 1; g.stroke();
+      g.strokeStyle = "rgba(" + f.c + "," + ((gros ? 0.62 : 0.34) * force).toFixed(2) + ")"; g.lineWidth = f.sortie ? 1.8 : f.axe ? 1.6 : 1; g.stroke();
       if (part < 1 && anime) {   // la pointe qui pousse
-        const p = f.pts[dernier]; g.shadowColor = "rgba(109,213,220,1)"; g.shadowBlur = 12;
-        g.beginPath(); g.arc(p.x, p.y, f.axe ? 2.6 : 1.9, 0, Math.PI * 2); g.fillStyle = "#EAFBFC"; g.fill(); g.shadowBlur = 0;
+        const p = f.pts[dernier]; g.shadowColor = "rgb(" + f.c + ")"; g.shadowBlur = 12;
+        g.beginPath(); g.arc(p.x, p.y, gros ? 2.6 : 1.8, 0, Math.PI * 2); g.fillStyle = "#fff"; g.fill(); g.shadowBlur = 0;
       }
     });
     VX.noeuds.forEach((nd) => {
       if (VX.pousse < nd.t) return;
-      const eclat = anime ? 0.55 + 0.4 * Math.sin(VX.t / 18 + nd.ph) : 0.7, naissance = anime ? Math.max(0, 1 - (VX.pousse - nd.t) * 9) : 0;
-      g.shadowColor = "rgba(" + teinte + ",1)"; g.shadowBlur = 8 + naissance * 14;
-      g.beginPath(); g.arc(nd.x, nd.y, nd.r + naissance * 2.2, 0, Math.PI * 2); g.fillStyle = "rgba(" + teinte + "," + (eclat * force + naissance * 0.4).toFixed(2) + ")"; g.fill();
+      const eclat = anime ? 0.55 + 0.4 * Math.sin(VX.t / 18 + nd.ph) : 0.75, naissance = anime ? Math.max(0, 1 - (VX.pousse - nd.t) * 9) : 0;
+      g.shadowColor = "rgb(" + nd.c + ")"; g.shadowBlur = 8 + naissance * 14;
+      g.beginPath(); g.arc(nd.x, nd.y, nd.r + naissance * 2.2, 0, Math.PI * 2); g.fillStyle = "rgba(" + nd.c + "," + Math.min(1, eclat * force + naissance * 0.4).toFixed(2) + ")"; g.fill();
     });
     g.shadowBlur = 0;
-    if (anime && VX.pousse >= 1) {   // influx
-      const cadence = chaud ? 0.5 : mode ? 0.22 : 0.07;
-      if (Math.random() < cadence) { const f = VX.fils[Math.floor(Math.random() * VX.fils.length)]; VX.grains.push({ f, t: 0, v: (f.axe ? 0.011 : 0.03) * (0.8 + Math.random() * 0.6) }); }
-      if (Math.random() < cadence) { const axes = VX.fils.filter((f) => f.axe); VX.grains.push({ f: axes[Math.floor(Math.random() * axes.length)], t: 0, v: 0.011 * (0.8 + Math.random() * 0.6) }); }
-      VX.grains = VX.grains.filter((q) => q.t < 1);
-      g.shadowColor = "rgba(" + teinte + ",1)"; g.shadowBlur = 10;
+    if (anime && VX.pousse >= 1) {   // influx : ils descendent le tronc d'un silo, puis filent vers les boutons
+      const cadence = chaud ? 0.34 : mode ? 0.16 : 0.05, vit = chaud ? 1.9 : mode ? 1.25 : 0.8;
+      if (Math.random() < cadence) { const troncs = VX.fils.filter((f) => f.axe); VX.grains.push({ f: troncs[Math.floor(Math.random() * troncs.length)], t: 0, v: 0.02 * (0.8 + Math.random() * 0.5), suite: true }); }
+      if (Math.random() < cadence * 1.4) { const f = VX.fils[Math.floor(Math.random() * VX.fils.length)]; if (!f.axe && !f.sortie) VX.grains.push({ f, t: 0, v: 0.045 * (0.8 + Math.random() * 0.6) }); }
+      const neufs = [];
       VX.grains.forEach((q) => {
-        q.t += q.v * (chaud ? 1.9 : mode ? 1.25 : 0.8);
-        const pos = Math.min(1, q.t) * (q.f.pts.length - 1), k = Math.floor(pos), r = pos - k, a = q.f.pts[k], b2 = q.f.pts[Math.min(q.f.pts.length - 1, k + 1)];
-        g.beginPath(); g.arc(a.x + (b2.x - a.x) * r, a.y + (b2.y - a.y) * r, q.f.axe ? 2.2 : 1.5, 0, Math.PI * 2); g.fillStyle = chaud ? "#FFC27A" : "#D9F8FA"; g.fill();
+        q.t += q.v * vit;
+        if (q.t >= 1 && q.suite) { const s = VX.fils.find((f) => f.sortie && f.i === q.f.i); if (s) neufs.push({ f: s, t: 0, v: 0.022 * (0.9 + Math.random() * 0.3) }); }
+      });
+      VX.grains = VX.grains.filter((q) => q.t < 1).concat(neufs);
+      VX.grains.forEach((q) => {
+        const pos = Math.min(1, q.t) * (q.f.pts.length - 1), k = Math.floor(pos), r = pos - k, a = q.f.pts[k], b2 = q.f.pts[Math.min(q.f.pts.length - 1, k + 1)], gros = q.f.axe || q.f.sortie;
+        g.shadowColor = "rgb(" + q.f.c + ")"; g.shadowBlur = 11;
+        g.beginPath(); g.arc(a.x + (b2.x - a.x) * r, a.y + (b2.y - a.y) * r, gros ? 2.3 : 1.5, 0, Math.PI * 2); g.fillStyle = chaud ? "#fff" : "rgba(255,255,255,.88)"; g.fill();
       });
       g.shadowBlur = 0;
     } else if (!anime) VX.grains = [];
   }
   // noyau : une arche de lumière au-dessus des deux boutons (elle s'efface vers les côtés, sans toucher les libellés)
-  const allume = VX.branche && VX.pousse >= 0.7, pouls = allume ? (anime ? 0.5 + Math.sin(VX.t / 14) * 0.18 : 0.5) * (mode ? 1.25 : 0.8) : 0.24;
+  const allume = VX.branche && VX.pousse >= 0.8, teinte = chaud ? "255,152,45" : "109,213,220";
+  const pouls = allume ? (anime ? 0.5 + Math.sin(VX.t / 14) * 0.18 : 0.5) * (mode ? 1.25 : 0.8) : 0.24;
   const voile = g.createLinearGradient(n.x - n.rx, 0, n.x + n.rx, 0), c0 = allume ? teinte : "142,163,186", a1 = Math.min(0.95, pouls).toFixed(2);
   voile.addColorStop(0, "rgba(" + c0 + ",0)"); voile.addColorStop(0.22, "rgba(" + c0 + "," + a1 + ")"); voile.addColorStop(0.78, "rgba(" + c0 + "," + a1 + ")"); voile.addColorStop(1, "rgba(" + c0 + ",0)");
   g.beginPath(); g.ellipse(n.x, n.y, n.rx, n.ry, 0, Math.PI, Math.PI * 2);
@@ -865,7 +976,9 @@ function brancher(oui) {
   VX.branche = oui; VX.pousse = 0; VX.depart = performance.now(); VX.grains = [];
   $("b-brancher").classList.toggle("fait", oui); $("b-brancher").setAttribute("aria-hidden", String(oui)); $("b-brancher").tabIndex = oui ? -1 : 0;
   $("b-debrancher").hidden = !oui;
-  vortexSources();
+  // on garde les silos en place pour que le niveau monte en douceur ; on ne change que leur état
+  $("sources").querySelectorAll(".silo").forEach((el) => el.classList.toggle("branchee", oui));
+  vortexDessiner(true);
 }
 $("b-brancher").addEventListener("click", () => brancher(true));
 $("b-debrancher").addEventListener("click", () => { if (mode) { alerte("Arrêtez d'abord l'écoute pour débrancher la documentation."); return; } brancher(false); });
@@ -958,7 +1071,7 @@ async function demarrer(m) {
     }
     ecranDemarrer(fluxEcran);
   }
-  mode = m; ecoute = true; boutons(); if (!VX.branche) brancher(true); else vortexSources();
+  mode = m; ecoute = true; boutons(); if (!VX.branche) brancher(true); silosEtat();
   local = await essayerLocal();
   if (!ecoute) return;
   if (!ETAT.phrases.length) $("fil").innerHTML = "";
@@ -971,9 +1084,10 @@ function arreter() {
   [fluxEcran, fluxMicro].forEach((f) => { if (f) f.getTracks().forEach((t) => t.stop()); });
   fluxEcran = fluxMicro = null; pisteSon = null;
   if (ctxSon) { try { ctxSon.close(); } catch (e) {} ctxSon = null; }
-  mode = null; boutons(); vortexSources();
+  mode = null; boutons(); silosEtat();
   voyant("", "Écoute arrêtée");
 }
+function silosEtat() { $("sources").querySelectorAll(".silo").forEach((el) => el.classList.toggle("vive", !!mode)); vortexDessiner(true); }
 function boutons() {
   [["b-audio", "audio", "Audio", "micro"], ["b-video", "video", "Audio + vidéo", "son et écran de la visio"]].forEach(([id, m, nom, sous]) => {
     const b = $(id), actif = mode === m;
@@ -1105,7 +1219,7 @@ async function lirePage() {
     ETAT.lectures.push({ h: ETAT.ecran.h, texte, ms });
     ecranEtat("Page lue à " + ETAT.ecran.h + " en " + (ms / 1000).toFixed(1).replace(".", ",") + " s (" + texte.length.toLocaleString("fr-FR") + " caractères) "
       + "<details><summary>voir le texte lu</summary><div id=\"ecran-texte\">" + echap(texte) + "</div></details>");
-    ligneFil('<span class="h">' + ETAT.ecran.h + '</span>Nouvelle page à l\'écran, lue et jointe à l\'analyse.', "page");
+    ETAT.ecran.el = ligneFil('<span class="h">' + ETAT.ecran.h + '</span>Nouvelle page à l\'écran, lue et jointe à l\'analyse.', "page");
     ETAT.ecranNouveau = true; envoyer();
   } catch (e) {
     ecranEtat("Lecture de l'écran impossible : " + echap(e.message || e) + ". L'audio continue.");
@@ -1120,7 +1234,7 @@ $("b-cr").addEventListener("click", () => {
     + "\n\n=== CE QUI S'EST DIT (transcription automatique, interlocuteurs non distingués) ===\n"
     + ETAT.phrases.map((p) => "[" + p.h + "] " + p.t).join("\n")
     + "\n\n=== ÉLÉMENTS QUI CONFIRMENT OU CONTESTENT ===\n"
-    + ETAT.coms.map((c) => "[" + c.h + "] " + VERDICTS[c.verdict] + " / " + TYPES[c.type] + (c.repere ? " (" + c.repere + ")" : "") + " — " + c.texte + (c.article ? "\n   Article cité de mémoire, à vérifier : " + c.article : "") + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n")
+    + ETAT.coms.map((c) => "[" + c.h + "] " + VERDICTS[c.verdict] + " / " + NOM_SOURCE[c.source] + " — " + TYPES[c.type] + (c.repere ? " (" + c.repere + ")" : "") + " — " + c.texte + (c.article ? "\n   Article cité de mémoire, à vérifier : " + c.article : "") + (c.piece ? "\n   Pièce : " + c.piece : "") + (c.extrait ? "\n   Extrait : « " + c.extrait + " »" : "") + "\n   Sur : « " + c.sur + " »").join("\n\n")
     + (ETAT.lectures.length ? "\n\n=== PAGES LUES À L'ÉCRAN (lecture automatique) ===\n" + ETAT.lectures.map((l) => "--- [" + l.h + "] ---\n" + l.texte).join("\n\n") : "");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([t], { type: "text/plain;charset=utf-8" }));
