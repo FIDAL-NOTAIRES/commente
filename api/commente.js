@@ -1,4 +1,11 @@
-// COMMENTE — v0.4 (26/11/2026 nuit) — fonction serveur unique : éléments qui confirment ou contestent ce qui se dit.
+// COMMENTE — v0.10 (27/11/2026) — fonction serveur unique : éléments qui confirment ou contestent ce qui se dit.
+// v0.10 : la page range désormais les éléments par SOURCE (Dossier : projet, autres pièces, vigilance ; Articles : règles de droit).
+// Les types ne changent pas ; les consignes ne parlent plus de quatre colonnes ; six éléments au plus, deux règles de droit au plus,
+// quatre éléments tirés du dossier au plus (deux par type au plus).
+// (historique) v0.9 (26/11/2026 nuit) :
+// v0.9 : la page affiche les QUATRE SOURCES en même temps, une colonne par type. Chaque point important est donc confronté
+// à chacune des quatre sources (projet d'acte, autres pièces, droit, vigilance) : six éléments au plus, deux au plus par type.
+// (historique) v0.4 (26/11/2026 nuit) :
 // v0.4 : la réponse n'est plus une liste de commentaires mais une liste d'ÉLÉMENTS typés (extrait du projet, élément du dossier,
 // article de loi, point de vigilance) avec une appréciation (confirme, contredit, à vérifier, question) ; quatre au plus.
 // Les articles de loi sont cités de mémoire par le modèle : la page les présente toujours comme « à vérifier ».
@@ -39,7 +46,12 @@ Quatre appréciations (« verdict ») :
 - "a_verifier" : le point ne peut pas être tranché avec les pièces, ou l'écart peut venir d'une erreur de transcription ou de lecture ;
 - "question" : question utile à poser maintenant.
 
-Quand un fait vérifiable est énoncé (prix, date, surface, tantièmes, nom, délai, condition suspensive, clause, charge, diagnostic, règle de droit), cherche-le dans les pièces et montre l'extrait exact. Une confirmation est utile au notaire sur un point important ; elle est inutile sur une banalité. Commence par les contradictions.
+Le notaire voit deux colonnes CÔTE À CÔTE et veut contester en direct sur plusieurs sources à la fois : la colonne DOSSIER (types "projet", "dossier" et "vigilance") et la colonne ARTICLES (type "loi").
+Quand un fait vérifiable ou un point important est énoncé (prix, date, surface, tantièmes, nom, délai, condition suspensive, clause, charge, diagnostic, règle de droit), confronte-le aux deux sources :
+- DOSSIER : que dit le projet d'acte ? que disent les autres pièces ? (extraits exacts) ; y a-t-il un point de vigilance ou une question à poser ?
+- ARTICLES : quelle règle de droit s'applique ?
+Donne un élément par source qui a réellement quelque chose à dire ; n'en fabrique pas pour remplir une colonne. Deux sources qui se contredisent entre elles (le projet dit une chose, une autre pièce en dit une autre) : signale-le dans les deux, c'est précieux.
+Une confirmation est utile sur un point important ; elle est inutile sur une banalité. Commence par les contradictions.
 Si rien de ce qui vient d'être dit n'est vérifiable ni notable, ne renvoie rien. Ne répète jamais un élément déjà donné.
 
 Règles impératives :
@@ -56,7 +68,7 @@ PAGE AFFICHÉE À L'ÉCRAN (quand elle t'est fournie) : c'est le texte de l'acte
 
 Réponds UNIQUEMENT par un objet JSON, sans texte autour ni balises :
 {"elements":[{"type":"projet","verdict":"contredit","texte":"…","repere":"…","piece":"…","extrait":"…","article":""}]}
-Au plus quatre éléments. S'il n'y a rien d'utile : {"elements":[]}`;
+Au plus six éléments, et au plus deux du même type. S'il n'y a rien d'utile : {"elements":[]}`;
 
 function lignes(tab) {
   return (Array.isArray(tab) ? tab : []).map((p) => `[${String(p.h || "").slice(0, 8)}] ${String(p.t || "").slice(0, 2000)}`).join("\n");
@@ -64,7 +76,7 @@ function lignes(tab) {
 
 module.exports = async function handler(req, res) {
   if (req.method === "GET") {
-    res.status(200).json({ outil: "commente", version: "0.4", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
+    res.status(200).json({ outil: "commente", version: "0.10", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
     return;
   }
   if (req.method !== "POST") { res.status(405).json({ erreur: "Méthode non admise." }); return; }
@@ -116,7 +128,7 @@ module.exports = async function handler(req, res) {
     r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODELE, max_tokens: 1200, system: CONSIGNES, messages: [{ role: "user", content: contenu }] })
+      body: JSON.stringify({ model: MODELE, max_tokens: 1700, system: CONSIGNES, messages: [{ role: "user", content: contenu }] })
     });
     d = await r.json().catch(() => ({}));
   } catch (e) {
@@ -133,7 +145,7 @@ module.exports = async function handler(req, res) {
     const a = texte.indexOf("{"), b = texte.lastIndexOf("}");
     const o = JSON.parse(texte.slice(a, b + 1));
     elements = (Array.isArray(o.elements) ? o.elements : [])
-      .filter((c) => c && c.texte).slice(0, 4)
+      .filter((c) => c && c.texte)
       .map((c) => ({
         type: TYPES.includes(c.type) ? c.type : "vigilance",
         verdict: VERDICTS.includes(c.verdict) ? c.verdict : "a_verifier",
@@ -143,6 +155,10 @@ module.exports = async function handler(req, res) {
         extrait: String(c.extrait || "").slice(0, 500),
         article: String(c.article || "").slice(0, 120)
       }));
+    // au plus deux éléments par type, quatre tirés du dossier (projet, autres pièces, vigilance), six en tout
+    const parType = {}; let duDossier = 0;
+    elements = elements.filter((c) => (parType[c.type] = (parType[c.type] || 0) + 1) <= 2)
+      .filter((c) => c.type === "loi" || ++duDossier <= 4).slice(0, 6);
   } catch (e) { elements = []; }
   const commentaires = elements.map((c) => ({
     nature: c.verdict === "contredit" ? "alerte" : c.verdict === "question" ? "question" : "precision",
