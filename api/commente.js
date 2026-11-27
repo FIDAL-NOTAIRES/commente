@@ -1,4 +1,8 @@
-// COMMENTE — v0.10 (27/11/2026) — fonction serveur unique : éléments qui confirment ou contestent ce qui se dit.
+// COMMENTE — v0.12 (27/11/2026 soir) — fonction serveur unique : éléments qui confirment ou contestent ce qui se dit.
+// v0.12 : dossier lu avant le rendez-vous. Quand le dossier est volumineux, la page n'envoie plus tout : le projet d'acte en entier
+// (« pieces », bloc stable gardé en mémoire) et, des autres pièces, les PASSAGES proches de ce qui se dit (« passages », avec leur page).
+// Le modèle sait alors qu'il ne voit qu'une partie du dossier ; il cite la page quand elle est connue.
+// (historique) v0.10 (27/11/2026) :
 // v0.10 : la page range désormais les éléments par SOURCE (Dossier : projet, autres pièces, vigilance ; Articles : règles de droit).
 // Les types ne changent pas ; les consignes ne parlent plus de quatre colonnes ; six éléments au plus, deux règles de droit au plus,
 // quatre éléments tirés du dossier au plus (deux par type au plus).
@@ -28,6 +32,7 @@ const { verifierPersonne } = require("./_acces.js");
 const MODELE = process.env.COMMENTE_MODELE || "claude-haiku-5-5";
 const MAX_PIECES = 400000;   // caractères, toutes pièces confondues
 const MAX_ECRAN = 20000;     // caractères de la page affichée à l'écran
+const MAX_PASSAGES = 80000;  // caractères, tous passages confondus (dossier volumineux)
 
 const CONSIGNES = `Tu assistes un notaire de FIDAL Notaires pendant une réunion (visio ou rendez-vous). Tu entends la conversation par une transcription automatique, imparfaite : des mots peuvent être mal reconnus et les interlocuteurs ne sont pas distingués.
 Ton rôle : afficher, en regard de ce qui se dit, les ÉLÉMENTS qui le CONFIRMENT ou qui le CONTESTENT, tirés des pièces du dossier et du droit applicable. Le notaire les lit d'un coup d'œil pendant que la réunion continue.
@@ -57,6 +62,8 @@ Si rien de ce qui vient d'être dit n'est vérifiable ni notable, ne renvoie rie
 Règles impératives :
 - N'invente jamais le contenu d'une pièce. « extrait » est un passage court recopié mot pour mot ; « piece » est le nom exact de la pièce. Si les pièces ne disent rien du point, utilise "a_verifier" ou tais-toi.
 - Type "loi" : expose la règle en une phrase. Ne remplis « article » (par exemple « article 1589 du Code civil ») que si tu es certain à la fois du numéro et du contenu ; dans le doute, laisse « article » vide et décris seulement la règle. Tu cites de mémoire : le notaire vérifiera.
+- Page : dans une pièce, un repère « [page N] » précède le texte de la page N ; un passage porte sa page. Quand tu la connais, ajoute-la au nom dans « piece » (par exemple « Copropriété / règlement.pdf, p. 12 »).
+- PASSAGES (quand ils te sont fournis) : le dossier est volumineux et tu n'en vois que des extraits choisis automatiquement, en plus du projet d'acte. Ne conclus JAMAIS qu'une pièce ou le dossier « ne dit rien » d'un point : ce que tu ne vois pas peut exister. Dans ce cas, utilise "a_verifier" ou tais-toi.
 - « texte » : une ou deux phrases courtes, en français correct, sans aucun mot anglais. On parle de l'office ou de l'étude, jamais du cabinet.
 - « repere » : l'article, le titre ou le passage de l'acte concerné, tel qu'il apparaît (par exemple « Article 7 – Conditions suspensives ») ; vide si aucun.
 
@@ -76,7 +83,7 @@ function lignes(tab) {
 
 module.exports = async function handler(req, res) {
   if (req.method === "GET") {
-    res.status(200).json({ outil: "commente", version: "0.10", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
+    res.status(200).json({ outil: "commente", version: "0.12", garde: "CARNET", modele: MODELE, cle: !!process.env.ANTHROPIC_API_KEY });
     return;
   }
   if (req.method !== "POST") { res.status(405).json({ erreur: "Méthode non admise." }); return; }
@@ -99,12 +106,26 @@ module.exports = async function handler(req, res) {
     return `<piece numero="${i + 1}" nom="${String(p.nom || "pièce " + (i + 1)).replace(/"/g, "'")}">\n${t}\n</piece>`;
   }).join("\n\n");
 
+  let totalPassages = 0;
+  const blocPassages = (Array.isArray(corps.passages) ? corps.passages : []).filter((p) => p && p.texte).map((p) => {
+    const t = String(p.texte).slice(0, Math.max(0, MAX_PASSAGES - totalPassages)); totalPassages += t.length;
+    if (!t) return "";
+    const page = Number(p.page) > 0 ? ` page="${Math.floor(Number(p.page))}"` : "";
+    return `<passage piece="${String(p.nom || "pièce").slice(0, 240).replace(/"/g, "'")}"${page}>\n${t}\n</passage>`;
+  }).filter(Boolean).join("\n\n");
+
   const contenu = [];
   contenu.push({
     type: "text",
-    text: "PIÈCES DU DOSSIER\n\n" + (blocPieces || "(aucune pièce chargée : commente seulement les points de vigilance notariale évidents)"),
+    text: "PIÈCES DU DOSSIER\n\n" + (blocPieces || (blocPassages ? "(aucune pièce jointe en entier : voir les passages ci-dessous)" : "(aucune pièce chargée : commente seulement les points de vigilance notariale évidents)")),
     cache_control: { type: "ephemeral" }
   });
+  if (blocPassages) {
+    contenu.push({
+      type: "text",
+      text: "PASSAGES DES AUTRES PIÈCES (dossier volumineux : extraits choisis automatiquement d'après ce qui vient d'être dit ; le reste du dossier ne t'est pas montré) :\n\n" + blocPassages
+    });
+  }
   const deja = (Array.isArray(corps.deja) ? corps.deja : []).slice(-12).map((t) => "- " + String(t).slice(0, 400)).join("\n");
   contenu.push({
     type: "text",
